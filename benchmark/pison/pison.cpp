@@ -8,7 +8,7 @@
 #include <bits/stdc++.h>
 
 Record* getRecord(char* file) {
-    char path[150] = "/home/ubuntu/gpjson/datasets/";
+    char path[150] = "/home/ubuntu/datasets/";
     strcat(path, file);
     Record* rec = RecordLoader::loadSingleRecord(path);
     if (rec == NULL) {
@@ -28,12 +28,12 @@ void query_TT1(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
-    int thread_num = 16;
+    int thread_num = 12;
     /* set the number of levels of bitmaps to create, either based on the
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
      */
-    int level_num = 2;
+    int level_num = 3;
 
     /* process the input record: first build bitmap, then perform
      * the query with a bitmap iterator
@@ -66,12 +66,12 @@ void query_TT2(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
-    int thread_num = 16;
+    int thread_num = 12;
     /* set the number of levels of bitmaps to create, either based on the
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
      */
-    int level_num = 1;
+    int level_num = 3;
 
     /* process the input record: first build bitmap, then perform
      * the query with a bitmap iterator
@@ -100,12 +100,12 @@ void query_TT3(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
-    int thread_num = 16;
+    int thread_num = 12;
     /* set the number of levels of bitmaps to create, either based on the
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
      */
-    int level_num = 2;
+    int level_num = 3;
 
     /* process the input record: first build bitmap, then perform
      * the query with a bitmap iterator
@@ -140,12 +140,12 @@ void query_TT4(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
-    int thread_num = 16;
+    int thread_num = 12;
     /* set the number of levels of bitmaps to create, either based on the
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
      */
-    int level_num = 2;
+    int level_num = 3;
 
     /* process the input record: first build bitmap, then perform
      * the query with a bitmap iterator
@@ -180,7 +180,7 @@ void query_WM(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
-    int thread_num = 16;
+    int thread_num = 12;
     /* set the number of levels of bitmaps to create, either based on the
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
@@ -226,7 +226,7 @@ void query_BB(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
-    int thread_num = 16;
+    int thread_num = 12;
     /* set the number of levels of bitmaps to create, either based on the
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
