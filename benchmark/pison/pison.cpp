@@ -23,7 +23,7 @@ uint64_t timeSinceEpochMillisec() {
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-// $.user.lang
+// $[*].user.lang
 void query_TT1(char* file) {
     Record* rec = getRecord(file);
 
@@ -61,7 +61,7 @@ void query_TT1(char* file) {
     // cout << "matches are: " << output << endl;
 }
 
-// $.lang
+// {$[*].user.lang, $[*].lang}
 void query_TT2(char* file) {
     Record* rec = getRecord(file);
 
@@ -80,12 +80,27 @@ void query_TT2(char* file) {
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
     string output = "";
+    unordered_set<char*> set;
+    set.insert("user");
+    set.insert("lang");
+    char* key = NULL;
     while (iter->isArray() && iter->moveNext() == true) {
         if (iter->down() == false) continue;  /* array element on the top level */
-        if (iter->isObject() && iter->moveToKey("lang")) {
-            char* value = iter->getValue();
-            output.append(value).append(";");
-            if (value) free(value);
+        if (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
+            if (strcmp(key, "lang") == 0) {
+                char* value = iter->getValue();
+                output.append(value).append(";");
+                if (value) free(value);
+            } else {
+                if (iter->down() == false) continue;  /* value of "user" */
+                if (iter->isObject() && iter->moveToKey("lang")) {
+                    // value of "lang"
+                    char* value = iter->getValue();
+                    output.append(value).append(";");
+                    if (value) free(value);
+                }
+                iter->up();
+            }
         }
         iter->up();
     }
@@ -95,7 +110,7 @@ void query_TT2(char* file) {
     // cout << "matches are: " << output << endl;
 }
 
-// $.user.lang[?(@ == 'nl')]"
+// $[*].user.lang[?(@ == 'nl')]"
 void query_TT3(char* file) {
     Record* rec = getRecord(file);
 
@@ -135,7 +150,7 @@ void query_TT3(char* file) {
     // cout<<"matches are: "<<output<<endl;
 }
 
-// $.user.lang[?(@ == 'en')]"
+// $[*].user.lang[?(@ == 'en')]"
 void query_TT4(char* file) {
     Record* rec = getRecord(file);
 
@@ -175,7 +190,7 @@ void query_TT4(char* file) {
     // cout<<"matches are: "<<output<<endl;
 }
 
-// {$.bestMarketplacePrice.price, $.name}
+// {$[*].bestMarketplacePrice.price, $[*].name}
 void query_WM(char* file) {
     Record* rec = getRecord(file);
 
@@ -194,12 +209,13 @@ void query_WM(char* file) {
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
     string output = "";
-    if (iter->isObject()) {
-        unordered_set<char*> set;
-        set.insert("bestMarketplacePrice");
-        set.insert("name");
-        char* key = NULL;
-        while ((key = iter->moveToKey(set)) != NULL) {
+    unordered_set<char*> set;
+    set.insert("bestMarketplacePrice");
+    set.insert("name");
+    char* key = NULL;
+    while (iter->isArray() && iter->moveNext() == true) {
+        if (iter->down() == false) continue;  /* array element on the top level */
+        while (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
             if (strcmp(key, "bestMarketplacePrice") == 0) {
                 if (iter->down() == false) continue;
                 if (iter->isObject() && iter->moveToKey("price")) {
@@ -214,14 +230,16 @@ void query_WM(char* file) {
                 if (value) free(value);
             }
         }
+        iter->up();
     }
+        
     delete iter;
     delete bm;
     delete rec;
     // cout<<"matches are: "<<output<<endl;
 }
 
-// $.categoryPath[1:3].id
+// $[*].categoryPath[1:3].id
 void query_BB(char* file) {
     Record* rec = getRecord(file);
 
