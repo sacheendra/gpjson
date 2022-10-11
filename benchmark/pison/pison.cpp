@@ -1,6 +1,6 @@
-#include "/home/ubuntu/Pison/src/RecordLoader.h"
-#include "/home/ubuntu/Pison/src/BitmapIterator.h"
-#include "/home/ubuntu/Pison/src/BitmapConstructor.h"
+#include "src/RecordLoader.h"
+#include "src/BitmapIterator.h"
+#include "src/BitmapConstructor.h"
 
 #include <chrono>
 #include <iostream>
@@ -8,7 +8,7 @@
 #include <bits/stdc++.h>
 
 Record* getRecord(char* file) {
-    char path[150] = "/home/ubuntu/datasets/";
+    char path[150] = "../../../datasets/";
     strcat(path, file);
     Record* rec = RecordLoader::loadSingleRecord(path);
     if (rec == NULL) {
