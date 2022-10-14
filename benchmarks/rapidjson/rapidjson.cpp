@@ -193,7 +193,7 @@ void execute(const int warmup_query, const int repeat_query, const char* dataset
 }
 
 int main(void) {
-    const int warmup_query = 1, repeat_query = 1;
+    const int warmup_query = 5, repeat_query = 10;
 
     char test [50] = "test_small_records.json";
     char twitter_small [50] = "twitter_small_records.json";

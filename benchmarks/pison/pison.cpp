@@ -424,7 +424,7 @@ void execute(const int warmup_query, const int repeat_query, char* dataset, int 
 }
 
 int main() {
-    const int warmup_query = 1, repeat_query = 1;
+    const int warmup_query = 5, repeat_query = 10;
 
     char test [50] = "test_large_record.json";
     char twitter_large [50] = "twitter_large_record.json";

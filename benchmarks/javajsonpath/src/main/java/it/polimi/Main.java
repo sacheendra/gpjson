@@ -1,8 +1,8 @@
 package it.polimi;
 
 public class Main {
-    private final static int warmup_query = 1;
-    private final static int repeat_query = 1;
+    private final static int warmup_query = 5;
+    private final static int repeat_query = 10;
     private final static String base_dir = "../../../datasets/";
 
     interface I {

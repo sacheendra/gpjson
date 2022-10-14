@@ -139,8 +139,8 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
 }
 
 function app() {
-    const warmup_query = 1;
-    const repeat_query = 1;
+    const warmup_query = 5;
+    const repeat_query = 10;
 
     const twitter_small = "twitter_small_records.json";
     const walmart_small = "walmart_small_records.json";
