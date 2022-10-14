@@ -1,38 +1,8 @@
 const fs = require('fs');
+const { performance } = require('perf_hooks');
 
-const datasetsPath = `/home/ubuntu/datasets`;
-const datasetsFilenames = {
-  twitter_small: `${datasetsPath}/twitter_small_records.json`,
-  twitter_smaller: `${datasetsPath}/twitter_small_records_smaller.json`,
-  bestbuy_small: `${datasetsPath}/bestbuy_small_records.json`,
-  walmart_small: `${datasetsPath}/walmart_small_records.json`,
-}
-
-// Define queries to use.
-const q = {
-    TT1: "$.user.lang",
-    TT2: ["$.user.lang", "$.lang"],
-    TT3: "$.user.lang[?(@ == 'nl')]",
-    TT4: "$.user.lang[?(@ == 'en')]",
-    WM: ["$.bestMarketplacePrice.price", "$.name"],
-    BB: "$.categoryPath[1:3].id"
-}
-
-const datasetToQuery = {
-    twitter_small:   [q.TT1, q.TT2, q.TT3, q.TT4],
-    twitter_smaller: [q.TT1, q.TT2, q.TT3, q.TT4],
-    bestbuy_small:   [q.BB],
-    walmart_small:   [q.WM]
-}
-
-// Number of times to run the warmup query.
-const warmupQueries = 10;
-
-// Number of times to run every single query.
-const repeatQueries = 2;
-
-const dbsizes = {}
-for (name of Object.keys(datasetsFilenames)) dbsizes[name] = fs.statSync(datasetsFilenames[name]).size;
+const base_dir = "../../../datasets/";
+var gpjson;
 
 // https://stackoverflow.com/a/18650828
 function formatBytes(bytes, decimals = 2) {
@@ -44,48 +14,130 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-const gpjson = Polyglot.eval('gpjson', 'jsonpath');
-
-function queryAllOnDataset(dataset) {
-    const queries = datasetToQuery[dataset];
-    if (queries && queries.length > 0) {
-        console.log(`-- running queries on ${dataset}`);
-        for (query of queries) {
-            const t0 = process.hrtime.bigint();
-            for (var i = 0; i < repeatQueries; i++) gpjson.query(datasetsFilenames[dataset], query);
-                const t1 = process.hrtime.bigint();
-
-//            result = gpjson.query(datasetsFilenames[dataset], query);
-//            const num_results = result[0].length;
-            const num_results = "NaN";
-
-            const timeInMs = Number(t1 - t0) / 1_000_000;
-            const avgTimeInMs = timeInMs / repeatQueries;
-            const avgTimeInS = avgTimeInMs / 1_000;
-            const speed = dbsizes[dataset] / avgTimeInS;
-            console.log(`* Query ${query} on dataset ${dataset} of size ${formatBytes(dbsizes[dataset])}: results: ${num_results} | avg time: ${avgTimeInMs}ms | speed: ${formatBytes(speed)}/s`);
+// $.user.lang
+function query_TT1(dataset) {
+    var count = 0;
+    var result = gpjson.query(base_dir + dataset, "$.user.lang");
+    for (let i = 0; i < result[0].length; i++) {
+        for (let j = 0; j < result[0][i].length; j++) {
+            if (result[0][i][j] != null)
+                count += 1;
         }
     }
+    return count;
 }
 
-function queryAllOnAllDatasets() {
-    const datasets = Object.keys(datasetsFilenames);
-    for (dataset of datasets) queryAllOnDataset(dataset);
-}
-
-function runWarmupQueries() {
-    for (let i = 0; i < warmupQueries; i++) {
-        gpjson.query(datasetsFilenames.twitter_small, q.TT1);
+// {$.user.lang, $.lang}
+function query_TT2(dataset) {
+    var count = 0;
+    result = gpjson.query(base_dir + dataset, ["$.user.lang", "$.lang"]);
+    for (let i = 0; i < result[0].length; i++) {
+        for (let j = 0; j < result[0][i].length; j++) {
+            if (result[0][i][j] != null)
+                count += 1;
+        }
     }
-    console.log("-- warmup done.");
+    for (let i = 0; i < result[1].length; i++) {
+        for (let j = 0; j < result[1][i].length; j++) {
+            if (result[1][i][j] != null)
+                count += 1;
+        }
+    }
+    return count;
+}
+
+// $.user.lang[?(@ == 'nl')]
+function query_TT3(dataset) {
+    var count = 0;
+    result = gpjson.query(base_dir + dataset, "$.user.lang[?(@ == 'nl')]");
+    for (let i = 0; i < result[0].length; i++) {
+        for (let j = 0; j < result[0][i].length; j++) {
+            if (result[0][i][j] != null)
+                count += 1;
+        }
+    }
+    return count;
+}
+
+// $.user.lang[?(@ == 'en')]
+function query_TT4(dataset) {
+    var count = 0;
+    result = gpjson.query(base_dir + dataset, "$.user.lang[?(@ == 'en')]");
+    for (let i = 0; i < result[0].length; i++) {
+        for (let j = 0; j < result[0][i].length; j++) {
+            if (result[0][i][j] != null)
+                count += 1;
+        }
+    }
+    return count;
+}
+
+// {$.bestMarketplacePrice.price, $.name}
+function query_WM(dataset) {
+    var count = 0;
+    result = gpjson.query(base_dir + dataset, ["$.bestMarketplacePrice.price", "$.name"]);
+    for (let i = 0; i < result[0].length; i++) {
+        for (let j = 0; j < result[0][i].length; j++) {
+            if (result[0][i][j] != null)
+                count += 1;
+        }
+    }
+    for (let i = 0; i < result[1].length; i++) {
+        for (let j = 0; j < result[1][i].length; j++) {
+            if (result[1][i][j] != null)
+                count += 1;
+        }
+    }
+    return count;
+}
+
+// $.categoryPath[1:3].id
+function query_BB(dataset) {
+    var count = 0;
+    result = gpjson.query(base_dir + dataset, "$.categoryPath[1:3].id");
+    for (let i = 0; i < result[0].length; i++) {
+        for (let j = 0; j < result[0][i].length; j++) {
+            if (result[0][i][j] != null)
+                count += 1;
+        }
+    }
+    return count;
+}
+
+function execute(warmup_query, repeat_query, dataset, func, query) {
+    console.log("Starting warmup queries on dataset " + dataset);
+    var num_results;
+    for (let i = 0; i < warmup_query; i++)
+        num_results = func(dataset);
+    const start = performance.now();
+    for (let i = 0; i < repeat_query; i++)
+        func(dataset);
+    const delay = performance.now() - start;
+    const speed = fs.statSync(base_dir + dataset).size / delay * 1000;
+    console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms | " + formatBytes(speed) + "/s; results: " + num_results);
 }
 
 function main() {
-    console.log("-- starting script.");
-    runWarmupQueries();
-    queryAllOnAllDatasets();
+    const warmup_query = 1;
+    const repeat_query = 1;
+
+    const test_small = "test_small_records.json";
+    const twitter_small = "twitter_small_records.json";
+    const walmart_small = "walmart_small_records.json";
+    const bestbuy_small = "bestbuy_small_records.json";
+
+    gpjson = Polyglot.eval('gpjson', 'jsonpath');
+
+    execute(warmup_query, repeat_query, twitter_small, query_TT1, "TT1");
+    execute(warmup_query, repeat_query, twitter_small, query_TT2, "TT2");
+    execute(warmup_query, repeat_query, twitter_small, query_TT3, "TT3");
+    execute(warmup_query, repeat_query, twitter_small, query_TT4, "TT4");
+
+    execute(warmup_query, repeat_query, walmart_small, query_WM, "WM");
+
+    execute(warmup_query, repeat_query, bestbuy_small, query_BB, "BB");
 }
 
 main()
 
-fs.writeFileSync('./benchmark_profile.json', gpjson.exportTimings());
+// fs.writeFileSync('./benchmark_profile.json', gpjson.exportTimings());
