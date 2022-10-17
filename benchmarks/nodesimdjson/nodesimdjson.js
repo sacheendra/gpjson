@@ -137,12 +137,17 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     var num_results;
     for (let i = 0; i < warmup_query; i++)
         num_results = func(dataset);
-    const start = performance.now();
-    for (let i = 0; i < repeat_query; i++)
+    var start = 0;
+    var delays = [];
+    for (let i = 0; i < repeat_query; i++) {
+        start = performance.now();
         func(dataset);
-    const delay = performance.now() - start;
+        delays.push(performance.now() - start);
+    }
+    average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
+    std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
     if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
-    console.log("nodesimdjson,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
+    console.log("nodesimdjson," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
 }
 
 function app() {

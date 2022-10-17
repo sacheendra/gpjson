@@ -109,13 +109,18 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     var num_results;
     for (let i = 0; i < warmup_query; i++)
         num_results = func(dataset);
-    const start = performance.now();
-    for (let i = 0; i < repeat_query; i++)
+    var start = 0;
+    var delays = [];
+    for (let i = 0; i < repeat_query; i++) {
+        start = performance.now();
         func(dataset);
-    const delay = performance.now() - start;
-    const speed = fs.statSync(base_dir + dataset).size / delay * 1000;
-    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms | " + formatBytes(speed) + "/s; results: " + num_results);
-    console.log("gpjson,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
+        delays.push(performance.now() - start);
+    }
+    average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
+    std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
+    const speed = fs.statSync(base_dir + dataset).size / average * 1000;
+    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms | " + formatBytes(speed) + "/s; results: " + num_results);
+    console.log("gpjson," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
 }
 
 function main() {

@@ -12,9 +12,9 @@ function query_TT1(dataset) {
         try {
             const obj = JSON.parse(file[i]);
             for (var key1 in obj) {
-                if (obj.hasOwnProperty(key1) && key1 == "user"){
+                if (obj.hasOwnProperty(key1) && key1 == "user") {
                     for (var key2 in obj[key1]) {
-                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang"){
+                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang") {
                             value = obj[key1][key2];
                             count += 1;
                         }
@@ -37,15 +37,15 @@ function query_TT2(dataset) {
         try {
             const obj = JSON.parse(file[i]);
             for (var key1 in obj) {
-                if (obj.hasOwnProperty(key1) && key1 == "user"){
+                if (obj.hasOwnProperty(key1) && key1 == "user") {
                     for (var key2 in obj[key1]) {
-                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang"){
+                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang") {
                             value = obj[key1][key2];
                             count += 1;
                         }
                     }
                 }
-                if (obj.hasOwnProperty(key1) && key1 == "lang"){
+                if (obj.hasOwnProperty(key1) && key1 == "lang") {
                     value = obj[key1];
                     count += 1;
                 }
@@ -66,9 +66,9 @@ function query_TT3(dataset) {
         try {
             const obj = JSON.parse(file[i]);
             for (var key1 in obj) {
-                if (obj.hasOwnProperty(key1) && key1 == "user"){
+                if (obj.hasOwnProperty(key1) && key1 == "user") {
                     for (var key2 in obj[key1]) {
-                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang" && obj[key1][key2] == "nl"){
+                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang" && obj[key1][key2] == "nl") {
                             value = obj[key1][key2];
                             count += 1;
                         }
@@ -91,9 +91,9 @@ function query_TT4(dataset) {
         try {
             const obj = JSON.parse(file[i]);
             for (var key1 in obj) {
-                if (obj.hasOwnProperty(key1) && key1 == "user"){
+                if (obj.hasOwnProperty(key1) && key1 == "user") {
                     for (var key2 in obj[key1]) {
-                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang" && obj[key1][key2] == "en"){
+                        if (obj[key1].hasOwnProperty(key2) && key2 == "lang" && obj[key1][key2] == "en") {
                             value = obj[key1][key2];
                             count += 1;
                         }
@@ -116,20 +116,20 @@ function query_WM(dataset) {
         try {
             const obj = JSON.parse(file[i]);
             for (var key1 in obj) {
-                if (obj.hasOwnProperty(key1) && key1 == "bestMarketplacePrice"){
+                if (obj.hasOwnProperty(key1) && key1 == "bestMarketplacePrice") {
                     for (var key2 in obj[key1]) {
-                        if (obj[key1].hasOwnProperty(key2) && key2 == "price"){
+                        if (obj[key1].hasOwnProperty(key2) && key2 == "price") {
                             value = obj[key1][key2];
                             count += 1;
                         }
                     }
                 }
-                if (obj.hasOwnProperty(key1) && key1 == "name"){
+                if (obj.hasOwnProperty(key1) && key1 == "name") {
                     value = obj[key1];
                     count += 1;
                 }
             }
-        } catch (error) { 
+        } catch (error) {
             // console.log(error);
         }
     }
@@ -145,10 +145,10 @@ function query_BB(dataset) {
         try {
             const obj = JSON.parse(file[i]);
             for (var key1 in obj) {
-                if (obj.hasOwnProperty(key1) && key1 == "categoryPath"){
-                    for(var j = 1; j < 3 && j < obj[key1].length; j++) {
+                if (obj.hasOwnProperty(key1) && key1 == "categoryPath") {
+                    for (var j = 1; j < 3 && j < obj[key1].length; j++) {
                         for (var key2 in obj[key1][j]) {
-                            if (obj[key1][j].hasOwnProperty(key2) && key2 == "id"){
+                            if (obj[key1][j].hasOwnProperty(key2) && key2 == "id") {
                                 value = obj[key1][j][key2];
                                 count += 1;
                             }
@@ -156,7 +156,7 @@ function query_BB(dataset) {
                     }
                 }
             }
-        } catch (error) { 
+        } catch (error) {
             // console.log(error);
         }
     }
@@ -168,12 +168,17 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     var num_results;
     for (let i = 0; i < warmup_query; i++)
         num_results = func(dataset);
-    const start = performance.now();
-    for (let i = 0; i < repeat_query; i++)
+    var start = 0;
+    var delays = [];
+    for (let i = 0; i < repeat_query; i++) {
+        start = performance.now();
         func(dataset);
-    const delay = performance.now() - start;
+        delays.push(performance.now() - start);
+    }
+    average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
+    std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
     if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
-    console.log("nodemanual,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
+    console.log("nodemanual," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
 }
 
 function app() {

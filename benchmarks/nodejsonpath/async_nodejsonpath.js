@@ -7,7 +7,7 @@ const base_dir = "../../../datasets/";
 
 // $.user.lang
 async function query_TT1(dataset) {
-    var lineReader = readline.createInterface({input: fs.createReadStream(base_dir + dataset)});
+    var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
     var count = 0;
     for await (const line of lineReader) {
         try {
@@ -23,7 +23,7 @@ async function query_TT1(dataset) {
 
 // {$.user.lang, $.lang}
 async function query_TT2(dataset) {
-    var lineReader = readline.createInterface({input: fs.createReadStream(base_dir + dataset)});
+    var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
     var count = 0;
     for await (const line of lineReader) {
@@ -48,7 +48,7 @@ async function query_TT2(dataset) {
 
 // $.user.lang[?(@ == 'nl')]"
 async function query_TT3(dataset) {
-    var lineReader = readline.createInterface({input: fs.createReadStream(base_dir + dataset)});
+    var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
     var count = 0;
     for await (const line of lineReader) {
@@ -66,7 +66,7 @@ async function query_TT3(dataset) {
 
 // $.user.lang[?(@ == 'en')]"
 async function query_TT4(dataset) {
-    var lineReader = readline.createInterface({input: fs.createReadStream(base_dir + dataset)});
+    var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
     var count = 0;
     for await (const line of lineReader) {
@@ -84,7 +84,7 @@ async function query_TT4(dataset) {
 
 // {$.bestMarketplacePrice.price, $.name}
 async function query_WM(dataset) {
-    var lineReader = readline.createInterface({input: fs.createReadStream(base_dir + dataset)});
+    var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
     var count = 0;
     for await (const line of lineReader) {
@@ -109,7 +109,7 @@ async function query_WM(dataset) {
 
 // $.categoryPath[1:3].id
 async function query_BB(dataset) {
-    var lineReader = readline.createInterface({input: fs.createReadStream(base_dir + dataset)});
+    var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
     var count = 0;
     for await (const line of lineReader) {
@@ -132,12 +132,17 @@ async function execute(warmup_query, repeat_query, dataset, func, query) {
     var num_results;
     for (let i = 0; i < warmup_query; i++)
         num_results = await func(dataset);
-    const start = performance.now();
-    for (let i = 0; i < repeat_query; i++)
+    var start = 0;
+    var delays = [];
+    for (let i = 0; i < repeat_query; i++) {
+        start = performance.now();
         await func(dataset);
-    const delay = performance.now() - start;
+        delays.push(performance.now() - start);
+    }
+    average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
+    std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
     if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
-    console.log("nodejsonpath,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
+    console.log("nodejsonpath," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
 }
 
 async function app() {
