@@ -14,6 +14,7 @@ sudo apt-get -y install cuda=11.2.0-1
 wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.0.0.2/graalvm-ce-java8-linux-amd64-21.0.0.2.tar.gz
 tar xfz graalvm-ce-java8-linux-amd64-21.0.0.2.tar.gz
 rm graalvm-ce-java8-linux-amd64-21.0.0.2.tar.gz
+gu install nodejs
 
 # Install java 8 and set it as default
 sudo apt install openjdk-8-jdk
