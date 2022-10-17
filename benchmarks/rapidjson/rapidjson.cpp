@@ -179,21 +179,29 @@ int query_BB(const char* dataset) {
 }
 
 void execute(const int warmup_query, const int repeat_query, const char* dataset, int (*func)(const char*), const char* query) {
-    // cout << "Starting warmup queries on dataset " << dataset << endl;
+    extern bool DEBUG;
+    if (DEBUG) cout << "Starting warmup queries on dataset " << dataset << endl;
     int num_results;
     for (int i=0; i < warmup_query; i++) 
         num_results = func(dataset);
     uint64_t delay;
     uint64_t begin_time;
-    // cout << "Starting query on dataset " << dataset << endl;
+    if (DEBUG) cout << "Starting query on dataset " << dataset << endl;
     begin_time = timeSinceEpochMillisec();
     for (int i=0; i < repeat_query; i++) func(dataset);
     delay = timeSinceEpochMillisec() - begin_time;
-    // cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
+    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
     cout << "rapidjson,"<<dataset<<","<<query<<","<<delay/repeat_query<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
 }
 
-int main(void) {
+bool DEBUG = false;
+
+int main(int argc, char *argv[]) {
+    for(int i = 1; i < argc; i++) {
+        if(!strcmp(argv[i], "DEBUG")) {
+            DEBUG = true;
+        }
+    }
     const int warmup_query = 5, repeat_query = 10;
 
     char test [50] = "test_small_records.json";
