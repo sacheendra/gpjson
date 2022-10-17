@@ -6,12 +6,12 @@ public class Execute {
         int num_results = 0;
         for (int i=0; i < warmup_query; i++)
             num_results = func.query(dataset);
-        System.out.println("Starting query on dataset " + dataset);
+        // System.out.println("Starting query on dataset " + dataset);
         long start = System.currentTimeMillis();
         for (int i=0; i < repeat_query; i++)
             func.query(dataset);
         long delay = System.currentTimeMillis() - start;
         // System.out.println("Executed query " + query + " on dataset " + dataset + " in " + delay/repeat_query + "ms; results: " + num_results);
-        System.out.println("javajsonpath,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query)
+        System.out.println("javajsonpath,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
     }
 }
