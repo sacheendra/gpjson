@@ -19,7 +19,7 @@ gu install nodejs
 # Build gpjson
 cd gpjson
 ./gradlew build
-./gradlew copyToGraalVM -PgraalVMDirectory=$GRAAL_HOME
+./gradlew copyToGraalVM -PgraalVMDirectory=$GRAAL_HOME # Do not use with graalvm >= 22 
 
 # Install java 8 and set it as default
 sudo apt install openjdk-8-jdk
