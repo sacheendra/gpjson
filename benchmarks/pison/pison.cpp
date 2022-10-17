@@ -428,12 +428,19 @@ void execute(const int warmup_query, const int repeat_query, char* dataset, int 
 bool DEBUG = false;
 
 int main(int argc, char *argv[]) {
+    int warmup_query = 5, repeat_query = 10;
+
     for(int i = 1; i < argc; i++) {
         if(!strcmp(argv[i], "DEBUG")) {
             DEBUG = true;
         }
+        else if(!strncmp(argv[i], "warmup=", 7)) {
+            warmup_query = atoi(&argv[i][7]);
+        }
+        else if(!strncmp(argv[i], "repeat=", 7)) {
+            repeat_query = atoi(&argv[i][7]);
+        }
     }
-    const int warmup_query = 5, repeat_query = 10;
 
     char test [50] = "test_large_record.json";
     char twitter_large [50] = "twitter_large_record.json";

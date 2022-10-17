@@ -119,8 +119,10 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
 }
 
 function main() {
-    const warmup_query = 5;
-    const repeat_query = 10;
+    let idx = myArgs.findIndex(v => v.includes("warmup="));
+    const warmup_query = idx >= 0 ? parseInt(myArgs[idx].substring(7)) : 5;
+    idx = myArgs.findIndex(v => v.includes("repeat="));
+    const repeat_query = idx >= 0 ? parseInt(myArgs[idx].substring(7)) : 10;
 
     const test_small = "test_small_records.json";
     const twitter_small = "twitter_small_records.json";
