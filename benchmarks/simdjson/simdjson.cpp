@@ -171,17 +171,18 @@ int query_BB(const char* dataset) {
 }
 
 void execute(const int warmup_query, const int repeat_query, const char* dataset, int (*func)(const char*), const char* query) {
-    cout << "Starting warmup queries on dataset " << dataset << endl;
+    // cout << "Starting warmup queries on dataset " << dataset << endl;
     int num_results;
     for (int i=0; i < warmup_query; i++) 
         num_results = func(dataset);
     uint64_t delay;
     uint64_t begin_time;
-    cout << "Starting query on dataset " << dataset << endl;
+    // cout << "Starting query on dataset " << dataset << endl;
     begin_time = timeSinceEpochMillisec();
     for (int i=0; i < repeat_query; i++) func(dataset);
     delay = timeSinceEpochMillisec() - begin_time;
-    cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
+    // cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
+    cout << "simdjson,"<<dataset<<","<<query<<","<<delay/repeat_query<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
 }
 
 int main(void) {
@@ -202,6 +203,5 @@ int main(void) {
 
     execute(warmup_query, repeat_query, bestbuy_small, query_BB, "BB");
 
-    cout << "All queries done, exiting..." << endl;
     return 0;
 }

@@ -165,7 +165,7 @@ async function query_BB(dataset) {
 }
 
 async function execute(warmup_query, repeat_query, dataset, func, query) {
-    console.log("Starting warmup queries on dataset " + dataset);
+    if (DEBUG) console.log("Starting warmup queries on dataset " + dataset);
     var num_results;
     for (let i = 0; i < warmup_query; i++)
         num_results = await func(dataset);
@@ -173,7 +173,8 @@ async function execute(warmup_query, repeat_query, dataset, func, query) {
     for (let i = 0; i < repeat_query; i++)
         await func(dataset);
     const delay = performance.now() - start;
-    console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
+    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
+    console.log("nodemanual,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
 }
 
 async function app() {
@@ -194,4 +195,6 @@ async function app() {
     await execute(warmup_query, repeat_query, bestbuy_small, query_BB, "BB");
 }
 
+const myArgs = process.argv.slice(2);
+DEBUG = myArgs.includes("DEBUG") ? true : false;
 app();

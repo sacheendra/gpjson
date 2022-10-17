@@ -127,7 +127,7 @@ function query_BB(dataset) {
 }
 
 function execute(warmup_query, repeat_query, dataset, func, query) {
-    console.log("Starting warmup queries on dataset " + dataset);
+    if (DEBUG) console.log("Starting warmup queries on dataset " + dataset);
     var num_results;
     for (let i = 0; i < warmup_query; i++)
         num_results = func(dataset);
@@ -135,7 +135,8 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     for (let i = 0; i < repeat_query; i++)
         func(dataset);
     const delay = performance.now() - start;
-    console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
+    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + delay / repeat_query + "ms; results: " + num_results);
+    console.log("nodejsonpathplus,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
 }
 
 function app() {
@@ -156,4 +157,6 @@ function app() {
     execute(warmup_query, repeat_query, bestbuy_small, query_BB, "BB");
 }
 
+const myArgs = process.argv.slice(2);
+DEBUG = myArgs.includes("DEBUG") ? true : false;
 app();

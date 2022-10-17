@@ -410,17 +410,18 @@ int query_BB_large(char* file) {
 }
 
 void execute(const int warmup_query, const int repeat_query, char* dataset, int (*func)(char*), const char* query) {
-    cout << "Starting warmup queries on dataset " << dataset << endl;
+    // cout << "Starting warmup queries on dataset " << dataset << endl;
     int num_results;
     for (int i=0; i < warmup_query; i++) 
         num_results = func(dataset);
     uint64_t delay;
     uint64_t begin_time;
-    cout << "Starting query on dataset " << dataset << endl;
+    // cout << "Starting query on dataset " << dataset << endl;
     begin_time = timeSinceEpochMillisec();
     for (int i=0; i < repeat_query; i++) func(dataset);
     delay = timeSinceEpochMillisec() - begin_time;
-    cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
+    // cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
+    cout << "pison,"<<dataset<<","<<query<<","<<delay/repeat_query<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
 }
 
 int main() {
@@ -448,7 +449,6 @@ int main() {
     // execute(warmup_query, repeat_query, bestbuy_small, query_BB_small, "BB_small");
     execute(warmup_query, repeat_query, bestbuy_large, query_BB_large, "BB_large");
 
-    cout << "All queries done, exiting..." << endl;
     return 0;
 }
 
