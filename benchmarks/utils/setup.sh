@@ -16,6 +16,11 @@ tar xfz graalvm-ce-java8-linux-amd64-21.0.0.2.tar.gz
 rm graalvm-ce-java8-linux-amd64-21.0.0.2.tar.gz
 gu install nodejs
 
+# Build gpjson
+cd gpjson
+./gradlew build
+./gradlew copyToGraalVM -PgraalVMDirectory=$GRAAL_HOME
+
 # Install java 8 and set it as default
 sudo apt install openjdk-8-jdk
 sudo update-alternatives --config java
