@@ -1,5 +1,5 @@
-import { statSync } from 'fs';
-import { performance } from 'perf_hooks';
+const fs = require('fs');
+const { performance } = require('perf_hooks');
 
 var base_dir;
 var gpjson;
@@ -131,7 +131,7 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     }
     average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
     std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
-    const speed = statSync(base_dir + dataset).size / average * 1000;
+    const speed = fs.statSync(base_dir + dataset).size / average * 1000;
     if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms | " + formatBytes(speed) + "/s; results: " + num_results);
     console.log("gpjson," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
 }
