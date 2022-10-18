@@ -1,5 +1,7 @@
 package it.polimi;
 
+import java.util.Arrays;
+
 public class Execute {
     private boolean DEBUG = false;
     private int warmup_query = 5;
@@ -12,12 +14,17 @@ public class Execute {
         for (int i=0; i < warmup_query; i++)
             num_results = func.query(baseDir + dataset);
         if (DEBUG) System.out.println("Starting query on dataset " + dataset);
-        long start = System.currentTimeMillis();
-        for (int i=0; i < repeat_query; i++)
+        long start = 0;
+        double[] delays = new double[repeat_query];
+        for (int i=0; i < repeat_query; i++) {
+            start = System.currentTimeMillis();
             func.query(baseDir + dataset);
-        long delay = System.currentTimeMillis() - start;
-        if (DEBUG) System.out.println("Executed query " + query + " on dataset " + dataset + " in " + delay/repeat_query + "ms; results: " + num_results);
-        System.out.println("javajsonpath,"+dataset+","+query+","+delay/repeat_query+","+num_results+","+warmup_query+","+repeat_query);
+            delays[i] = System.currentTimeMillis() - start;
+        }
+        double average = Arrays.stream(delays).sum() / repeat_query;
+        double std = Math.sqrt(Arrays.stream(delays).reduce(0, (tot, elem) -> tot + (elem-average)*(elem-average) / (repeat_query-1)));
+        if (DEBUG) System.out.println("Executed query " + query + " on dataset " + dataset + " in " + average + "ms; results: " + num_results);
+        System.out.println("javajsonpath,"+dataset+","+query+","+average+","+std+","+num_results+","+warmup_query+","+repeat_query);
     }
 
     public void init(String[] args, String baseDir) {
