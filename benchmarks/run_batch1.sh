@@ -17,7 +17,7 @@ cd ..
 echo "running javajsonpath"
 cd javajsonpath
 mvn package
-java -jar target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.Batch1 warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # nodejsonpath
