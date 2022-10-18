@@ -8,7 +8,8 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap 'echo "\"${last_command}\" command failed with exit code $?."' EXIT
 
-NODE_PATH="$HOME/node-v16.18.0/bin"
+NODE_PATH="$NODE_DIR/bin"
+GRAAL_PATH="$GRAAL_DIR/bin"
 WARMUP=1
 REPEAT=2
 
@@ -18,7 +19,7 @@ echo "engine,dataset,query,time,results,warmup,repeat" > results.csv
 # gpjson
 echo "running gpjson"
 cd gpjson
-node --jvm --polyglot batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+$GRAAL_PATH/node --jvm --polyglot batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # javajsonpath
