@@ -1,6 +1,7 @@
 #include <iostream>
 #include "src/simdjson.h"
 
+#include <math.h>
 #include <chrono>
 #include <string>
 
@@ -28,6 +29,22 @@ void init(int argc, char *argv[], char *dir) {
 uint64_t timeSinceEpochMillisec() {
   using namespace std::chrono;
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+double avg(uint64_t *delays, int n) {
+    uint64_t sum = 0;
+    for (int i=0; i<n; i++) {
+        sum += delays[i];
+    }
+    return (double)sum/n;
+}
+
+double stdDev(uint64_t *delays, int n, int average) {
+    int sum = 0;
+    for (int i=0; i<n; i++) {
+        sum += (delays[i]-average)*(delays[i]-average);
+    }
+    return sqrt((float)sum/(n-1));
 }
 
 // $.user.lang
@@ -200,12 +217,16 @@ void execute(const char* dataset, int (*func)(const char*), const char* query) {
     int num_results;
     for (int i=0; i < warmup_query; i++) 
         num_results = func(dataset);
-    uint64_t delay;
+    uint64_t delays[repeat_query];
     uint64_t begin_time;
     if (DEBUG) cout << "Starting query on dataset " << dataset << endl;
-    begin_time = timeSinceEpochMillisec();
-    for (int i=0; i < repeat_query; i++) func(dataset);
-    delay = timeSinceEpochMillisec() - begin_time;
-    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
-    cout << "simdjson,"<<dataset<<","<<query<<","<<delay/repeat_query<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
+    for (int i=0; i < repeat_query; i++) {
+        begin_time = timeSinceEpochMillisec();
+        func(dataset);
+        delays[i] = timeSinceEpochMillisec() - begin_time;
+    }
+    double average = avg(delays, repeat_query);
+    double std = stdDev(delays, repeat_query, average);
+    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << num_results << endl;
+    cout << "simdjson,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
 }

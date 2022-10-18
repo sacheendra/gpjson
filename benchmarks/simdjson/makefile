@@ -4,7 +4,7 @@ SRC1 = batch1
 
 EXEC1 = $(DIR)/$(SRC1)
 TARGET = $(EXEC1)
-all: $(TARGET)
+all: $(SRC1)
 
 CC = g++
 CC_FLAGS = -O3 -std=c++11 -mavx -mavx2 -msse -msse2 -msse4 -msse4.2 -mpclmul
