@@ -2,7 +2,7 @@
 
 NODE_PATH="$HOME/node-v16.18.0/bin"
 WARMUP=1
-REPEAT=1
+REPEAT=2
 
 echo "Starting benchmarks"
 echo "engine,dataset,query,time,results,warmup,repeat" > results.csv
@@ -10,7 +10,7 @@ echo "engine,dataset,query,time,results,warmup,repeat" > results.csv
 # gpjson
 echo "running gpjson"
 cd gpjson
-node --jvm --polyglot gpsjon.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+node --jvm --polyglot batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # javajsonpath
@@ -24,27 +24,27 @@ cd ..
 echo "running nodejsonpath"
 cd nodejsonpath
 $NODE_PATH/npm install jsonpath
-$NODE_PATH/node async_nodejsonpath.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+$NODE_PATH/node batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # nodejsonpathplus
 echo "running nodejsonpathplus"
 cd nodejsonpathplus
 $NODE_PATH/npm install jsonpath-plus
-$NODE_PATH/node async_nodejsonpathplus.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+$NODE_PATH/node batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # nodemanual
 echo "running nodemanual"
 cd nodemanual
-$NODE_PATH/node async_nodemanual.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+$NODE_PATH/node batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # nodesimdjson
 echo "running nodesimdjson"
 cd nodesimdjson
 $NODE_PATH/npm install simdjson
-$NODE_PATH/node async_nodesimdjson.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+$NODE_PATH/node batch1.js warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # pison
