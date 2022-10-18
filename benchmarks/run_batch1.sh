@@ -50,22 +50,22 @@ cd ..
 # pison
 echo "running pison"
 cd pison
-make
-./bin/pison warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+make batch1
+./bin/batch1 warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # rapidjson
 echo "running rapidjson"
 cd rapidjson
-make
-./bin/rapidjson warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+make batch1
+./bin/batch1 warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 # simdjson
 echo "running simdjson"
 cd simdjson
-make
-./bin/simdjson warmup=$WARMUP repeat=$REPEAT >> ../results.csv
+make batch1
+./bin/batch1 warmup=$WARMUP repeat=$REPEAT >> ../results.csv
 cd ..
 
 echo "Benchmarks done"

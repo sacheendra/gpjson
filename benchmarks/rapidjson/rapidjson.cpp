@@ -7,7 +7,25 @@
 #include "src/filereadstream.h"
 
 using namespace std;
-#define BASE "../../../datasets/"
+
+bool DEBUG = false;
+int warmup_query = 5, repeat_query = 10;
+char* base_dir;
+
+void init(int argc, char *argv[], char *dir) {
+    base_dir = dir;
+    for(int i = 1; i < argc; i++) {
+        if(!strcmp(argv[i], "DEBUG")) {
+            DEBUG = true;
+        }
+        else if(!strncmp(argv[i], "warmup=", 7)) {
+            warmup_query = atoi(&argv[i][7]);
+        }
+        else if(!strncmp(argv[i], "repeat=", 7)) {
+            repeat_query = atoi(&argv[i][7]);
+        }
+    }
+}
 
 uint64_t timeSinceEpochMillisec() {
   using namespace std::chrono;
@@ -16,7 +34,8 @@ uint64_t timeSinceEpochMillisec() {
 
 // $.user.lang
 int query_TT1(const char* dataset) {
-    char path[150] = BASE;
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, dataset);
     
     FILE* fp = fopen(path, "r");
@@ -42,7 +61,8 @@ int query_TT1(const char* dataset) {
 
 // {$.user.lang, $.lang}
 int query_TT2(const char* dataset) {
-    char path[150] = BASE;
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, dataset);
 
     FILE* fp = fopen(path, "r");
@@ -71,7 +91,8 @@ int query_TT2(const char* dataset) {
 
 // $.user.lang[?(@ == 'nl')]"
 int query_TT3(const char* dataset) {
-    char path[150] = BASE;
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, dataset);
 
     FILE* fp = fopen(path, "r");
@@ -97,7 +118,8 @@ int query_TT3(const char* dataset) {
 
 // $.user.lang[?(@ == 'en')]"
 int query_TT4(const char* dataset) {
-    char path[150] = BASE;
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, dataset);
 
     FILE* fp = fopen(path, "r");
@@ -123,7 +145,8 @@ int query_TT4(const char* dataset) {
 
 // {$.bestMarketplacePrice.price, $.name}
 int query_WM(const char* dataset) {
-    char path[150] = BASE;
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, dataset);
 
     FILE* fp = fopen(path, "r");
@@ -152,7 +175,8 @@ int query_WM(const char* dataset) {
 
 // $.categoryPath[1:3].id
 int query_BB(const char* dataset) {
-    char path[150] = BASE;
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, dataset);
 
     FILE* fp = fopen(path, "r");
@@ -178,7 +202,7 @@ int query_BB(const char* dataset) {
     return count;
 }
 
-void execute(const int warmup_query, const int repeat_query, const char* dataset, int (*func)(const char*), const char* query) {
+void execute(const char* dataset, int (*func)(const char*), const char* query) {
     extern bool DEBUG;
     if (DEBUG) cout << "Starting warmup queries on dataset " << dataset << endl;
     int num_results;
@@ -192,39 +216,4 @@ void execute(const int warmup_query, const int repeat_query, const char* dataset
     delay = timeSinceEpochMillisec() - begin_time;
     if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << delay/repeat_query << "ms; results: " << num_results << endl;
     cout << "rapidjson,"<<dataset<<","<<query<<","<<delay/repeat_query<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
-}
-
-bool DEBUG = false;
-
-int main(int argc, char *argv[]) {
-    int warmup_query = 5, repeat_query = 10;
-
-    for(int i = 1; i < argc; i++) {
-        if(!strcmp(argv[i], "DEBUG")) {
-            DEBUG = true;
-        }
-        else if(!strncmp(argv[i], "warmup=", 7)) {
-            warmup_query = atoi(&argv[i][7]);
-        }
-        else if(!strncmp(argv[i], "repeat=", 7)) {
-            repeat_query = atoi(&argv[i][7]);
-        }
-    }
-
-    char test [50] = "test_small_records.json";
-    char twitter_small [50] = "twitter_small_records.json";
-    char twitter_smaller [50] = "twitter_small_records_smaller.json";
-    char bestbuy_small [50] = "bestbuy_small_records.json";
-    char walmart_small [50] = "walmart_small_records.json";
-
-    execute(warmup_query, repeat_query, twitter_small, query_TT1, "TT1");
-    execute(warmup_query, repeat_query, twitter_small, query_TT2, "TT2");
-    execute(warmup_query, repeat_query, twitter_small, query_TT3, "TT3");
-    execute(warmup_query, repeat_query, twitter_small, query_TT4, "TT4");
-
-    execute(warmup_query, repeat_query, walmart_small, query_WM, "WM");
-
-    execute(warmup_query, repeat_query, bestbuy_small, query_BB, "BB");
-
-    return 0;
 }
