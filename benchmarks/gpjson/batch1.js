@@ -1,4 +1,4 @@
-import { init, execute, query_TT1, query_TT2, query_TT3, query_TT4, query_WM, query_BB } from './gpjson';
+require('./gpjson.js')();
 
 function main() {
     const base_dir = "../../../datasets/";

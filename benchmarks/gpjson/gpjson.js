@@ -136,13 +136,15 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     console.log("gpjson," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
 }
 
-export const init = init;
-export const execute = execute;
-export const query_TT1 = query_TT1;
-export const query_TT2 = query_TT2;
-export const query_TT3 = query_TT3;
-export const query_TT4 = query_TT4;
-export const query_WM = query_WM;
-export const query_BB = query_BB;
+module.exports = function() {
+    this.init = init;
+    this.execute = execute;
+    this.query_TT1 = query_TT1;
+    this.query_TT2 = query_TT2;
+    this.query_TT3 = query_TT3;
+    this.query_TT4 = query_TT4;
+    this.query_WM = query_WM;
+    this.query_BB = query_BB;
+}
 
 // fs.writeFileSync('./benchmark_profile.json', gpjson.exportTimings());
