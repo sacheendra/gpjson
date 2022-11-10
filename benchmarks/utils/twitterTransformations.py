@@ -24,7 +24,7 @@ def targetSize(factor):
 
 def changeUserLang(targetSelectivity):
     source = open(baseDir+dataset, "r")
-    destination = open(baseDir+dataset.split(".")[0] + "_" + str(targetSelectivity) + "changeUserLang" + ".json", "w")
+    destination = open(baseDir+dataset.split(".")[0] + "_" + "changeUserLang" + str(targetSelectivity) + ".json", "w")
     for line in source:
         obj = json.loads(line)
         choice = random.randint(1,100)
@@ -39,7 +39,7 @@ def changeUserLang(targetSelectivity):
 
 def deleteUserLang(targetSelectivity):
     source = open(baseDir+dataset, "r")
-    destination = open(baseDir+dataset.split(".")[0] + "_" + str(targetSelectivity) + "deleteUserLang" + ".json", "w")
+    destination = open(baseDir+dataset.split(".")[0] + "_" + "deleteUserLang" + str(targetSelectivity) + ".json", "w")
     for line in source:
         obj = json.loads(line)
         choice = random.randint(1,100)
@@ -54,7 +54,7 @@ def deleteUserLang(targetSelectivity):
 
 def deleteUser(targetSelectivity):
     source = open(baseDir+dataset, "r")
-    destination = open(baseDir+dataset.split(".")[0] + "_" + str(targetSelectivity) + "deleteUser" + ".json", "w")
+    destination = open(baseDir+dataset.split(".")[0] + "_" + "deleteUser" + str(targetSelectivity) + ".json", "w")
     for line in source:
         obj = json.loads(line)
         choice = random.randint(1,100)
