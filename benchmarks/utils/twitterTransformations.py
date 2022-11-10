@@ -1,9 +1,26 @@
 #!/usr/bin/env python3
 import json
 import random
+import os
 
 baseDir = "../../../datasets/"
 dataset = "twitter_small_records.json"
+
+
+def targetSize(factor):
+    targetSize = os.stat(baseDir+dataset).st_size * factor
+    destination = open(baseDir+dataset.split(".")[0] + "_" + str(factor) + "x" + ".json", "w")
+    currentSize = destination.tell()
+    while (currentSize < targetSize):
+        source = open(baseDir+dataset, "r")
+        while line:= source.readline():
+            obj = json.loads(line)
+            currentSize = destination.tell()
+            if currentSize >= targetSize:
+                break
+            destination.write(json.dumps(obj)+"\n")
+        source.close()
+    destination.close()
 
 def changeUserLang(targetSelectivity):
     source = open(baseDir+dataset, "r")
@@ -50,6 +67,10 @@ def deleteUser(targetSelectivity):
     source.close()
     destination.close()
 
-changeUserLang(75)
-deleteUserLang(75)
-deleteUser(75)
+for target in [0,25,50,75,100]:
+    changeUserLang(target)
+    deleteUserLang(target)
+    deleteUser(target)
+
+for target in [0.125,0.25,0.5,1.5,2,2.5]:
+    targetSize(target)
