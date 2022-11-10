@@ -14,7 +14,7 @@ WARMUP=5
 REPEAT=10
 
 echo "Starting benchmarks"
-echo "engine,dataset,query,time,results,warmup,repeat" > batch1.csv
+echo "engine,dataset,query,time,stddev,results,warmup,repeat" > batch1.csv
 
 # gpjson
 echo "running gpjson"
