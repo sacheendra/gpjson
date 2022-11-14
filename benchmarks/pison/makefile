@@ -17,7 +17,7 @@ $(SRC1): $(SOURCE1)
 	mkdir -p $(DIR)
 	$(CC) $(CC_FLAGS) -o $(EXEC1) $(SOURCE1) $(POST_FLAGS)
 
-SOURCE2 = $(SRC2).cpp
+SOURCE2 = src/*.cpp $(SRC2).cpp
 $(SRC2): $(SOURCE2)
 	mkdir -p $(DIR)
 	$(CC) $(CC_FLAGS) -o $(EXEC2) $(SOURCE2) $(POST_FLAGS)
