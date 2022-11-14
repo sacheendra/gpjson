@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# exit when any command fails
+set -e
+
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap 'echo "\"${last_command}\" command exited with exit code $?."' EXIT
+
+NODE_PATH="$NODE_DIR/bin"
+GRAAL_PATH="$GRAAL_DIR/bin"
+WARMUP=5
+REPEAT=10
+
+echo "Starting benchmarks"
+echo "engine,dataset,query,time,stddev,results,warmup,repeat" > selectivity.csv
+
+# gpjson
+echo "running gpjson"
+cd gpjson
+$GRAAL_PATH/node --jvm --polyglot selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# javajsonpath
+echo "running javajsonpath"
+cd javajsonpath
+mvn package > /dev/null 2>&1
+java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.Selectivity warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# nodejsonpath
+echo "running nodejsonpath"
+cd nodejsonpath
+$NODE_PATH/npm install jsonpath > /dev/null 2>&1
+$NODE_PATH/node selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# nodejsonpathplus
+echo "running nodejsonpathplus"
+cd nodejsonpathplus
+$NODE_PATH/npm install jsonpath-plus > /dev/null 2>&1
+$NODE_PATH/node selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# nodemanual
+echo "running nodemanual"
+cd nodemanual
+$NODE_PATH/node selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# nodesimdjson
+echo "running nodesimdjson"
+cd nodesimdjson
+$NODE_PATH/npm install simdjson > /dev/null 2>&1
+$NODE_PATH/node selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# pison
+echo "running pison"
+cd pison
+make selectivity > /dev/null 2>&1
+./bin/selectivity warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# rapidjson
+echo "running rapidjson"
+cd rapidjson
+make selectivity > /dev/null 2>&1
+./bin/selectivity warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+# simdjson
+echo "running simdjson"
+cd simdjson
+make selectivity > /dev/null 2>&1
+./bin/selectivity warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+cd ..
+
+echo "Benchmarks done"
