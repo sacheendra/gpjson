@@ -13,21 +13,21 @@ public class Selectivity {
         exe.init(args, baseDir);
 
         List<String> twitter = new ArrayList<>();
-        twitter.add("twitter_small_records_0changeUserLang.json");
-        twitter.add("twitter_small_records_0deleteUser.json");
-        twitter.add("twitter_small_records_0deleteUserLang.json");
-        twitter.add("twitter_small_records_25changeUserLang.json");
-        twitter.add("twitter_small_records_25deleteUser.json");
-        twitter.add("twitter_small_records_25deleteUserLang.json");
-        twitter.add("twitter_small_records_50changeUserLang.json");
-        twitter.add("twitter_small_records_50deleteUser.json");
-        twitter.add("twitter_small_records_50deleteUserLang.json");
-        twitter.add("twitter_small_records_75changeUserLang.json");
-        twitter.add("twitter_small_records_75deleteUser.json");
-        twitter.add("twitter_small_records_75deleteUserLang.json");
-        twitter.add("twitter_small_records_100changeUserLang.json");
-        twitter.add("twitter_small_records_100deleteUser.json");
-        twitter.add("twitter_small_records_100deleteUserLang.json");
+        twitter.add("twitter_small_records_changeUserLang0.json");
+        twitter.add("twitter_small_records_deleteUser0.json");
+        twitter.add("twitter_small_records_deleteUserLang0.json");
+        twitter.add("twitter_small_records_changeUserLang25.json");
+        twitter.add("twitter_small_records_deleteUser25.json");
+        twitter.add("twitter_small_records_deleteUserLang25.json");
+        twitter.add("twitter_small_records_changeUserLang50.json");
+        twitter.add("twitter_small_records_deleteUser50.json");
+        twitter.add("twitter_small_records_deleteUserLang50.json");
+        twitter.add("twitter_small_records_changeUserLang75.json");
+        twitter.add("twitter_small_records_deleteUser75.json");
+        twitter.add("twitter_small_records_deleteUserLang75.json");
+        twitter.add("twitter_small_records_changeUserLang100.json");
+        twitter.add("twitter_small_records_deleteUser100.json");
+        twitter.add("twitter_small_records_deleteUserLang100.json");
 
         for (int i=0; i<twitter.size(); i++) {
             exe.execute(twitter.get(i), Query::TT1, "TT1");
