@@ -105,8 +105,8 @@ int query_TT1(char* file) {
             iter->up();
         }
         delete iter;
+        delete bm;
     }
-    delete bm;
     delete record_set;
 
     return count;
@@ -199,8 +199,8 @@ int query_TT2(char* file) {
             }
         }
         delete iter;
+        delete bm;
     }
-    delete bm;
     delete record_set;
     
     return count;
@@ -295,8 +295,8 @@ int query_TT3(char* file) {
             iter->up();
         }
         delete iter;
+        delete bm;
     }
-    delete bm;
     delete record_set;
     
     return count;
@@ -381,8 +381,8 @@ int query_TT4(char* file) {
             iter->up();
         }
         delete iter;
+        delete bm;
     }
-    delete bm;
     delete record_set;
     
     return count;
@@ -476,8 +476,8 @@ int query_WM(char* file) {
             }
         }
         delete iter;
+        delete bm;
     }
-    delete bm;
     delete record_set;
 
     return count;
@@ -528,7 +528,6 @@ int query_WM_large(char* file) {
         }
         iter->up();
     }
-        
     delete iter;
     delete bm;
     delete rec;
@@ -579,8 +578,8 @@ int query_BB(char* file) {
             iter->up();
         }
         delete iter;
+        delete bm;
     }
-    delete bm;
     delete record_set;
 
     return count;
