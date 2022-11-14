@@ -71,8 +71,49 @@ double stdDev(uint64_t *delays, int n, int average) {
     return sqrt((float)sum/(n-1));
 }
 
-// $[*].user.lang
+// $.user.lang
 int query_TT1(char* file) {
+    RecordSet* record_set = getRecordSet(file);
+
+    // set the number of threads for parallel bitmap construction
+    int thread_num = 1;
+    /* set the number of levels of bitmaps to create, either based on the
+     * query or the JSON records. E.g., query $[*].user.id needs three levels
+     * (level 0, 1, 2), but the record may be of more than three levels
+     */
+    int level_num = 5;
+
+    /* process the records one by one: for each one, first build bitmap, then perform
+     * the query with a bitmap iterator
+     */
+    int num_recs = record_set->size();
+    Bitmap* bm = NULL;
+
+    string output = "";
+    int count = 0;
+    for (int i = 0; i < num_recs; i++) {
+        bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
+        BitmapIterator* iter = BitmapConstructor::getIterator(bm);
+        if (iter->isObject() && iter->moveToKey("user")) {
+            if (iter->down() == false) continue;
+            if (iter->isObject() && iter->moveToKey("lang")) {
+                char* value = iter->getValue();
+                output.append(value).append(";");
+                count++;
+                if (value) free(value);
+            }
+            iter->up();
+        }
+        delete iter;
+    }
+    delete bm;
+    delete record_set;
+
+    return count;
+}
+
+// $[*].user.lang
+int query_TT1_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -112,8 +153,61 @@ int query_TT1(char* file) {
     return count;
 }
 
-// {$[*].user.lang, $[*].lang}
+// {$.user.lang, $.lang}
 int query_TT2(char* file) {
+    RecordSet* record_set = getRecordSet(file);
+
+    // set the number of threads for parallel bitmap construction
+    int thread_num = 1;
+    /* set the number of levels of bitmaps to create, either based on the
+     * query or the JSON records. E.g., query $[*].user.id needs three levels
+     * (level 0, 1, 2), but the record may be of more than three levels
+     */
+    int level_num = 3;
+
+    /* process the records one by one: for each one, first build bitmap, then perform
+     * the query with a bitmap iterator
+     */
+    int num_recs = record_set->size();
+    Bitmap* bm = NULL;
+
+    string output = "";
+    int count = 0;
+    unordered_set<char*> set;
+    char* key = NULL;
+    for (int i = 0; i < num_recs; i++) {
+        bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
+        BitmapIterator* iter = BitmapConstructor::getIterator(bm);
+        set.insert("lang");
+        set.insert("user");
+        while (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
+            if (strcmp(key, "lang") == 0) {
+                char* value = iter->getValue();
+                output.append(value).append(";");
+                count++;
+                if (value) free(value);
+            } else {
+                if (iter->down() == false) continue;  /* value of "user" */
+                if (iter->isObject() && iter->moveToKey("lang")) {
+                    // value of "lang"
+                    char* value = iter->getValue();
+                    output.append(value).append(";");
+                    count++;
+                    if (value) free(value);
+                }
+                iter->up();
+            }
+        }
+        delete iter;
+    }
+    delete bm;
+    delete record_set;
+    
+    return count;
+}
+
+// {$[*].user.lang, $[*].lang}
+int query_TT2_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -138,26 +232,7 @@ int query_TT2(char* file) {
         set.insert("lang");
         set.insert("user");
         if (iter->down() == false) continue;  /* array element on the top level */
-
-        if (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
-            if (strcmp(key, "lang") == 0) {
-                char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
-                if (value) free(value);
-            } else {
-                if (iter->down() == false) continue;  /* value of "user" */
-                if (iter->isObject() && iter->moveToKey("lang")) {
-                    // value of "lang"
-                    char* value = iter->getValue();
-                    output.append(value).append(";");
-                    count++;
-                    if (value) free(value);
-                }
-                iter->up();
-            }
-        } 
-        if ((key = iter->moveToKey(set)) != NULL) {
+        while (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
             if (strcmp(key, "lang") == 0) {
                 char* value = iter->getValue();
                 output.append(value).append(";");
@@ -175,27 +250,6 @@ int query_TT2(char* file) {
                 iter->up();
             }
         }
-
-        // if (iter->isObject() && iter->moveToKey("user") != NULL) {
-        //     if (iter->down() == false) continue;  /* value of "user" */
-        //     if (iter->isObject() && iter->moveToKey("lang")) {
-        //         // value of "lang"
-        //         char* value = iter->getValue();
-        //         output.append(value).append(";");
-        //         count++;
-        //         cout << "2" << endl;
-        //         if (value) free(value);
-        //     }
-        //     iter->up();
-        // }
-        // if (iter->isObject() && iter->moveToKey("lang") != NULL) {
-        //     char* value = iter->getValue();
-        //     output.append(value).append(";");
-        //     count++;
-        //     cout << "1" << endl;
-        //     if (value) free(value);
-        // }
-        
         iter->up();
     }
     delete iter;
@@ -205,8 +259,51 @@ int query_TT2(char* file) {
     return count;
 }
 
-// $[*].user.lang[?(@ == 'nl')]"
+// $.user.lang[?(@ == 'nl')]"
 int query_TT3(char* file) {
+    RecordSet* record_set = getRecordSet(file);
+
+    // set the number of threads for parallel bitmap construction
+    int thread_num = 1;
+    /* set the number of levels of bitmaps to create, either based on the
+     * query or the JSON records. E.g., query $[*].user.id needs three levels
+     * (level 0, 1, 2), but the record may be of more than three levels
+     */
+    int level_num = 3;
+
+    /* process the records one by one: for each one, first build bitmap, then perform
+     * the query with a bitmap iterator
+     */
+    int num_recs = record_set->size();
+    Bitmap* bm = NULL;
+
+    string output = "";
+    int count = 0;
+    for (int i = 0; i < num_recs; i++) {
+        bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
+        BitmapIterator* iter = BitmapConstructor::getIterator(bm);
+        if (iter->isObject() && iter->moveToKey("user")) {
+            if (iter->down() == false) continue;
+            if (iter->isObject() && iter->moveToKey("lang")) {
+                char* value = iter->getValue();
+                if (strcmp(value, "\"nl\",") == 0) {
+                    output.append(value).append(";");
+                    count++;
+                }
+                if (value) free(value);
+            }
+            iter->up();
+        }
+        delete iter;
+    }
+    delete bm;
+    delete record_set;
+    
+    return count;
+}
+
+// $[*].user.lang[?(@ == 'nl')]"
+int query_TT3_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -248,8 +345,51 @@ int query_TT3(char* file) {
     return count;
 }
 
-// $[*].user.lang[?(@ == 'en')]"
+// $.user.lang[?(@ == 'en')]"
 int query_TT4(char* file) {
+    RecordSet* record_set = getRecordSet(file);
+
+    // set the number of threads for parallel bitmap construction
+    int thread_num = 1;
+    /* set the number of levels of bitmaps to create, either based on the
+     * query or the JSON records. E.g., query $[*].user.id needs three levels
+     * (level 0, 1, 2), but the record may be of more than three levels
+     */
+    int level_num = 3;
+
+    /* process the records one by one: for each one, first build bitmap, then perform
+     * the query with a bitmap iterator
+     */
+    int num_recs = record_set->size();
+    Bitmap* bm = NULL;
+
+    string output = "";
+    int count = 0;
+    for (int i = 0; i < num_recs; i++) {
+        bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
+        BitmapIterator* iter = BitmapConstructor::getIterator(bm);
+        if (iter->isObject() && iter->moveToKey("user")) {
+            if (iter->down() == false) continue;
+            if (iter->isObject() && iter->moveToKey("lang")) {
+                char* value = iter->getValue();
+                if (strcmp(value, "\"en\",") == 0) {
+                    output.append(value).append(";");
+                    count++;
+                }
+                if (value) free(value);
+            }
+            iter->up();
+        }
+        delete iter;
+    }
+    delete bm;
+    delete record_set;
+    
+    return count;
+}
+
+// $[*].user.lang[?(@ == 'en')]"
+int query_TT4_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -288,6 +428,58 @@ int query_TT4(char* file) {
     delete bm;
     delete rec;
     
+    return count;
+}
+
+// {$.bestMarketplacePrice.price, $.name}
+int query_WM(char* file) {
+    RecordSet* record_set = getRecordSet(file);
+
+    // set the number of threads for parallel bitmap construction
+    int thread_num = 1;
+    /* set the number of levels of bitmaps to create, either based on the
+     * query or the JSON records. E.g., query $[*].user.id needs three levels
+     * (level 0, 1, 2), but the record may be of more than three levels
+     */
+    int level_num = 3;
+
+    /* process the records one by one: for each one, first build bitmap, then perform
+     * the query with a bitmap iterator
+     */
+    int num_recs = record_set->size();
+    Bitmap* bm = NULL;
+
+    string output = "";
+    int count = 0;
+    unordered_set<char*> set;
+    char* key = NULL;
+    for (int i = 0; i < num_recs; i++) {
+        bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
+        BitmapIterator* iter = BitmapConstructor::getIterator(bm);
+        set.insert("bestMarketplacePrice");
+        set.insert("name");
+        while (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
+            if (strcmp(key, "bestMarketplacePrice") == 0) {
+                if (iter->down() == false) continue;
+                if (iter->isObject() && iter->moveToKey("price")) {
+                    char* value = iter->getValue();
+                    output.append(value).append(";");
+                    count++;
+                    if (value) free(value);
+                }
+                iter->up();
+            } else {
+                char* value = iter->getValue();
+                output.append(value).append(";");
+                count++;
+                if (value) free(value);
+            }
+        }
+        delete iter;
+    }
+    delete bm;
+    delete record_set;
+
     return count;
 }
 
@@ -345,7 +537,7 @@ int query_WM_large(char* file) {
 }
 
 // $.categoryPath[1:3].id
-int query_BB_small(char* file) {
+int query_BB(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
