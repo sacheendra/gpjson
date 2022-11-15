@@ -14,9 +14,6 @@ async function main() {
     twitter.push("twitter_small_records_2.5x.json");
 
     for (var dataset of twitter) {
-        await execute(warmup_query, repeat_query, dataset, query_TT1, "TT1");
-        await execute(warmup_query, repeat_query, dataset, query_TT2, "TT2");
-        await execute(warmup_query, repeat_query, dataset, query_TT3, "TT3");
         await execute(warmup_query, repeat_query, dataset, query_TT4, "TT4");
     }
 }

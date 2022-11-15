@@ -22,9 +22,6 @@ int main(int argc, char *argv[]) {
     twitter[14] = "twitter_small_records_deleteUserLang100.json";
 
     for (int i=0; i<15; i++) {
-        execute(twitter[i], query_TT1, "TT1");
-        execute(twitter[i], query_TT2, "TT2");
-        execute(twitter[i], query_TT3, "TT3");
         execute(twitter[i], query_TT4, "TT4"); 
     }
  

@@ -22,9 +22,6 @@ public class Sizes {
         twitter.add("twitter_small_records_2.5x.json");
 
         for (int i=0; i<twitter.size(); i++) {
-            exe.execute(twitter.get(i), Query::TT1, "TT1");
-            exe.execute(twitter.get(i), Query::TT2, "TT2");
-            exe.execute(twitter.get(i), Query::TT3, "TT3");
             exe.execute(twitter.get(i), Query::TT4, "TT4");
         }
     }
