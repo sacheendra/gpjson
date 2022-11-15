@@ -13,14 +13,26 @@ GRAAL_PATH="$GRAAL_DIR/bin"
 WARMUP=5
 REPEAT=10
 
+# Read command parameters
+noGPU=false
+while getopts g OPT
+do
+    case "$OPT" in
+        g) noGPU=true ;;
+    esac
+done
+
 echo "Starting benchmarks"
 echo "engine,dataset,query,time,stddev,results,warmup,repeat" > selectivity.csv
 
 # gpjson
-echo "running gpjson"
-cd gpjson
-$GRAAL_PATH/node --jvm --polyglot selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
-cd ..
+if [ "$noGPU" = false ]
+then
+    echo "running gpjson"
+    cd gpjson
+    $GRAAL_PATH/node --jvm --polyglot selectivity.js warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+    cd ..
+fi
 
 # javajsonpath
 echo "running javajsonpath"
