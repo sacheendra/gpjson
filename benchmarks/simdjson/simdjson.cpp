@@ -4,6 +4,7 @@
 #include <math.h>
 #include <chrono>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -48,7 +49,7 @@ double stdDev(uint64_t *delays, int n, int average) {
 }
 
 // $.user.lang
-int query_TT1(const char* dataset) {
+vector<string_view> query_TT1(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -56,22 +57,21 @@ int query_TT1(const char* dataset) {
     simdjson::dom::parser parser;
     simdjson::dom::document_stream stream = parser.load_many(path);
 
-    string output = "";
-    int count = 0;
+    vector<string_view> result;
     for (simdjson::dom::element doc : stream) {
         auto elem = doc["user"]["lang"];
         simdjson::error_code error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            // output.append(value).append(";");
-            count++;
+            string_view value = elem.get_string();
+            result.push_back(value);
         }
     }
 
-    return count;
+    return result;
 }
 
 // {$.user.lang, $.lang}
-int query_TT2(const char* dataset) {
+vector<string_view> query_TT2(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -79,29 +79,28 @@ int query_TT2(const char* dataset) {
     simdjson::dom::parser parser;
     simdjson::dom::document_stream stream = parser.load_many(path);
 
-    string output = "";
-    int count = 0;
+    vector<string_view> result;
     for (simdjson::dom::element doc : stream) {
         auto elem = doc["user"]["lang"];
         simdjson::error_code error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            // output.append(value).append(";");
-            count++;
+            string_view value = elem.get_string();
+            result.push_back(value);
         }
 
         elem = doc["lang"];
         error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            // output.append(value).append(";");
-            count++;
+            string_view value = elem.get_string();
+            result.push_back(value);
         }
     }
 
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'nl')]"
-int query_TT3(const char* dataset) {
+vector<string_view> query_TT3(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -109,24 +108,23 @@ int query_TT3(const char* dataset) {
     simdjson::dom::parser parser;
     simdjson::dom::document_stream stream = parser.load_many(path);
 
-    string output = "";
-    int count = 0;
+    vector<string_view> result;
     for (simdjson::dom::element doc : stream) {
         auto elem = doc["user"]["lang"];
         simdjson::error_code error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            if ((string_view) elem.get_string() == "nl") {
-                // output.append(value).append(";");
-                count++;
+            string_view value = elem.get_string();
+            if ((string_view) value == "nl") {
+                result.push_back(value);
             }
         }
     }
 
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'en')]"
-int query_TT4(const char* dataset) {
+vector<string_view> query_TT4(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -134,24 +132,23 @@ int query_TT4(const char* dataset) {
     simdjson::dom::parser parser;
     simdjson::dom::document_stream stream = parser.load_many(path);
 
-    string output = "";
-    int count = 0;
+    vector<string_view> result;
     for (simdjson::dom::element doc : stream) {
         auto elem = doc["user"]["lang"];
         simdjson::error_code error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            if ((string_view) elem.get_string() == "en") {
-                // output.append(value).append(";");
-                count++;
+            string_view value = elem.get_string();
+            if ((string_view) value == "en") {
+                result.push_back(value);
             }
         }
     }
 
-    return count;
+    return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
-int query_WM(const char* dataset) {
+vector<string_view> query_WM(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -159,29 +156,31 @@ int query_WM(const char* dataset) {
     simdjson::dom::parser parser;
     simdjson::dom::document_stream stream = parser.load_many(path);
 
-    string output = "";
-    int count = 0;
+    vector<string_view> result;
     for (simdjson::dom::element doc : stream) {
         auto elem = doc["bestMarketplacePrice"]["price"];
         simdjson::error_code error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            // output.append(value).append(";");
-            count++;
+            if (elem.is_double()) {
+                double d = elem.get_double();
+                string_view value = string_view(to_string(d));
+                result.push_back(value);
+            }  
         }
 
         elem = doc["name"];
         error = elem.error();
         if (error == simdjson::error_code::SUCCESS) {
-            // output.append(value).append(";");
-            count++;
+            string_view value = elem.get_string();
+            result.push_back(value);
         }
     }
 
-    return count;
+    return result;
 }
 
 // $.categoryPath[1:3].id
-int query_BB(const char* dataset) {
+vector<string_view> query_BB(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -189,8 +188,7 @@ int query_BB(const char* dataset) {
     simdjson::dom::parser parser;
     simdjson::dom::document_stream stream = parser.load_many(path);
 
-    string output = "";
-    int count = 0;
+    vector<string_view> result;
     for (simdjson::dom::element doc : stream) {
         int idx = 0;
         auto arr = doc["categoryPath"];
@@ -200,23 +198,24 @@ int query_BB(const char* dataset) {
                 auto elem = value["id"];
                 simdjson::error_code error = elem.error();
                 if (error == simdjson::error_code::SUCCESS) {
-                    // output.append(value).append(";");
-                    count++;
+                    string_view value = elem.get_string();
+                    result.push_back(value);
                 } 
             }
             idx++;
         }
     }
 
-    return count;
+    return result;
 }
 
-void execute(const char* dataset, int (*func)(const char*), const char* query) {
+void execute(const char* dataset, vector<string_view> (*func)(const char*), const char* query) {
     extern bool DEBUG;
     if (DEBUG) cout << "Starting warmup queries on dataset " << dataset << endl;
-    int num_results;
+    vector<string_view> result;
     for (int i=0; i < warmup_query; i++) 
-        num_results = func(dataset);
+        result = func(dataset);
+    int numResults = result.size();
     uint64_t delays[repeat_query];
     uint64_t begin_time;
     if (DEBUG) cout << "Starting query on dataset " << dataset << endl;
@@ -227,6 +226,6 @@ void execute(const char* dataset, int (*func)(const char*), const char* query) {
     }
     double average = avg(delays, repeat_query);
     double std = stdDev(delays, repeat_query, average);
-    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << num_results << endl;
-    cout << "simdjson,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
+    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << numResults << endl;
+    cout << "simdjson,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<numResults<<","<<warmup_query<<","<<repeat_query << endl;
 }

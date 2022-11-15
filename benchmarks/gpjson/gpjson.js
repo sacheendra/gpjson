@@ -1,7 +1,8 @@
+const { count } = require('console');
 const fs = require('fs');
 const { performance } = require('perf_hooks');
 
-var base_dir;
+var baseDir;
 var gpjson;
 var DEBUG;
 
@@ -16,7 +17,7 @@ function formatBytes(bytes, decimals = 2) {
 }
 
 function init(dir) {
-    base_dir = dir;
+    baseDir = dir;
     gpjson = Polyglot.eval('gpjson', 'jsonpath');
     const myArgs = process.argv.slice(2);
     DEBUG = myArgs.includes("DEBUG") ? true : false;
@@ -27,101 +28,61 @@ function init(dir) {
     return [warmup_query, repeat_query];
 }
 
-// $.user.lang
-function query_TT1(dataset) {
+function countResults(result) {
     var count = 0;
-    var result = gpjson.query(base_dir + dataset, "$.user.lang");
-    for (let i = 0; i < result[0].length; i++) {
-        for (let j = 0; j < result[0][i].length; j++) {
-            if (result[0][i][j] != null)
-                count += 1;
+    for (let q = 0; q < result.length; q++) {
+        for (let i = 0; i < result[q].length; i++) {
+            for (let j = 0; j < result[q][i].length; j++) {
+                if (result[q][i][j] != null)
+                    count += 1;
+            }
         }
     }
     return count;
+}
+
+// $.user.lang
+function query_TT1(dataset) {
+    result = gpjson.query(baseDir + dataset, "$.user.lang");
+    return result;
 }
 
 // {$.user.lang, $.lang}
 function query_TT2(dataset) {
-    var count = 0;
-    result = gpjson.query(base_dir + dataset, ["$.user.lang", "$.lang"]);
-    for (let i = 0; i < result[0].length; i++) {
-        for (let j = 0; j < result[0][i].length; j++) {
-            if (result[0][i][j] != null)
-                count += 1;
-        }
-    }
-    for (let i = 0; i < result[1].length; i++) {
-        for (let j = 0; j < result[1][i].length; j++) {
-            if (result[1][i][j] != null)
-                count += 1;
-        }
-    }
-    return count;
+    result = gpjson.query(baseDir + dataset, ["$.user.lang", "$.lang"]);
+    return result;
 }
 
 // $.user.lang[?(@ == 'nl')]
 function query_TT3(dataset) {
-    var count = 0;
-    result = gpjson.query(base_dir + dataset, "$.user.lang[?(@ == 'nl')]");
-    for (let i = 0; i < result[0].length; i++) {
-        for (let j = 0; j < result[0][i].length; j++) {
-            if (result[0][i][j] != null)
-                count += 1;
-        }
-    }
-    return count;
+    result = gpjson.query(baseDir + dataset, "$.user.lang[?(@ == 'nl')]");
+    return result;
 }
 
 // $.user.lang[?(@ == 'en')]
 function query_TT4(dataset) {
-    var count = 0;
-    result = gpjson.query(base_dir + dataset, "$.user.lang[?(@ == 'en')]");
-    for (let i = 0; i < result[0].length; i++) {
-        for (let j = 0; j < result[0][i].length; j++) {
-            if (result[0][i][j] != null)
-                count += 1;
-        }
-    }
-    return count;
+    result = gpjson.query(baseDir + dataset, "$.user.lang[?(@ == 'en')]");
+    return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
 function query_WM(dataset) {
-    var count = 0;
-    result = gpjson.query(base_dir + dataset, ["$.bestMarketplacePrice.price", "$.name"]);
-    for (let i = 0; i < result[0].length; i++) {
-        for (let j = 0; j < result[0][i].length; j++) {
-            if (result[0][i][j] != null)
-                count += 1;
-        }
-    }
-    for (let i = 0; i < result[1].length; i++) {
-        for (let j = 0; j < result[1][i].length; j++) {
-            if (result[1][i][j] != null)
-                count += 1;
-        }
-    }
-    return count;
+    result = gpjson.query(baseDir + dataset, ["$.bestMarketplacePrice.price", "$.name"]);
+    return result;
 }
 
 // $.categoryPath[1:3].id
 function query_BB(dataset) {
-    var count = 0;
-    result = gpjson.query(base_dir + dataset, "$.categoryPath[1:3].id");
-    for (let i = 0; i < result[0].length; i++) {
-        for (let j = 0; j < result[0][i].length; j++) {
-            if (result[0][i][j] != null)
-                count += 1;
-        }
-    }
-    return count;
+    result = gpjson.query(baseDir + dataset, "$.categoryPath[1:3].id");
+    return result;
 }
 
 function execute(warmup_query, repeat_query, dataset, func, query) {
     if (DEBUG) console.log("Starting warmup queries on dataset " + dataset);
-    var num_results;
+    var result;
     for (let i = 0; i < warmup_query; i++)
-        num_results = func(dataset);
+        result = func(dataset);
+    var numResults = countResults(result);
     var start = 0;
     var delays = [];
     for (let i = 0; i < repeat_query; i++) {
@@ -131,9 +92,9 @@ function execute(warmup_query, repeat_query, dataset, func, query) {
     }
     average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
     std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
-    const speed = fs.statSync(base_dir + dataset).size / average * 1000;
-    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms | " + formatBytes(speed) + "/s; results: " + num_results);
-    console.log("gpjson," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
+    const speed = fs.statSync(baseDir + dataset).size / average * 1000;
+    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms | " + formatBytes(speed) + "/s; results: " + numResults);
+    console.log("gpjson," + dataset + "," + query + "," + average + "," + std + "," + numResults + "," + warmup_query + "," + repeat_query);
 }
 
 module.exports = function() {
@@ -146,5 +107,3 @@ module.exports = function() {
     this.query_WM = query_WM;
     this.query_BB = query_BB;
 }
-
-// fs.writeFileSync('./benchmark_profile.json', gpjson.exportTimings());

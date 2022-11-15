@@ -20,7 +20,7 @@ function init(dir) {
 async function query_TT1(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
@@ -29,7 +29,7 @@ async function query_TT1(dataset) {
                     for (var key2 in obj[key1]) {
                         if (obj[key1].hasOwnProperty(key2) && key2 == "lang") {
                             value = obj[key1][key2];
-                            count += 1;
+                            result.push(value);
                         }
                     }
                 }
@@ -38,14 +38,14 @@ async function query_TT1(dataset) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // {$.user.lang, $.lang}
 async function query_TT2(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
@@ -54,27 +54,27 @@ async function query_TT2(dataset) {
                     for (var key2 in obj[key1]) {
                         if (obj[key1].hasOwnProperty(key2) && key2 == "lang") {
                             value = obj[key1][key2];
-                            count += 1;
+                            result.push(value);
                         }
                     }
                 }
                 if (obj.hasOwnProperty(key1) && key1 == "lang") {
                     value = obj[key1];
-                    count += 1;
+                    result.push(value);
                 }
             }
         } catch (error) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'nl')]"
 async function query_TT3(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
@@ -83,7 +83,7 @@ async function query_TT3(dataset) {
                     for (var key2 in obj[key1]) {
                         if (obj[key1].hasOwnProperty(key2) && key2 == "lang" && obj[key1][key2] == "nl") {
                             value = obj[key1][key2];
-                            count += 1;
+                            result.push(value);
                         }
                     }
                 }
@@ -92,14 +92,14 @@ async function query_TT3(dataset) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'en')]"
 async function query_TT4(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
@@ -108,7 +108,7 @@ async function query_TT4(dataset) {
                     for (var key2 in obj[key1]) {
                         if (obj[key1].hasOwnProperty(key2) && key2 == "lang" && obj[key1][key2] == "en") {
                             value = obj[key1][key2];
-                            count += 1;
+                            result.push(value);
                         }
                     }
                 }
@@ -117,14 +117,14 @@ async function query_TT4(dataset) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
 async function query_WM(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
@@ -133,27 +133,27 @@ async function query_WM(dataset) {
                     for (var key2 in obj[key1]) {
                         if (obj[key1].hasOwnProperty(key2) && key2 == "price") {
                             value = obj[key1][key2];
-                            count += 1;
+                            result.push(value);
                         }
                     }
                 }
                 if (obj.hasOwnProperty(key1) && key1 == "name") {
                     value = obj[key1];
-                    count += 1;
+                    result.push(value);
                 }
             }
         } catch (error) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // $.categoryPath[1:3].id
 async function query_BB(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
@@ -163,7 +163,7 @@ async function query_BB(dataset) {
                         for (var key2 in obj[key1][j]) {
                             if (obj[key1][j].hasOwnProperty(key2) && key2 == "id") {
                                 value = obj[key1][j][key2];
-                                count += 1;
+                                result.push(value);
                             }
                         }
                     }
@@ -173,14 +173,15 @@ async function query_BB(dataset) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 async function execute(warmup_query, repeat_query, dataset, func, query) {
     if (DEBUG) console.log("Starting warmup queries on dataset " + dataset);
-    var num_results;
+    var result;
     for (let i = 0; i < warmup_query; i++)
-        num_results = await func(dataset);
+        result = await func(dataset);
+    var numResults = result.length;
     var start = 0;
     var delays = [];
     for (let i = 0; i < repeat_query; i++) {
@@ -190,8 +191,8 @@ async function execute(warmup_query, repeat_query, dataset, func, query) {
     }
     average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
     std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
-    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms; results: " + num_results);
-    console.log("nodemanual," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
+    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms; results: " + numResults);
+    console.log("nodemanual," + dataset + "," + query + "," + average + "," + std + "," + numResults + "," + warmup_query + "," + repeat_query);
 }
 
 module.exports = function() {

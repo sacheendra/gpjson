@@ -21,130 +21,147 @@ function init(dir) {
 async function query_TT1(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
     
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
             let value = jp.query(obj, '$.user.lang');
-            count += value.length;
+            for (let item of value) {
+                result.push(item);
+            }
         } catch (error) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // {$.user.lang, $.lang}
 async function query_TT2(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
             try {
                 let value = jp.query(obj, '$.user.lang');
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
             } catch (error) {
                 if (DEBUG) console.log(error);
             }
             try {
                 let value = jp.query(obj, '$.lang');
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
             } catch (error) {
                 if (DEBUG) console.log(error);
             }
         } catch { }
     }
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'nl')]"
 async function query_TT3(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
             let value = jp.query(obj, '$.user.lang');
             if (value == "nl")
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
         } catch (error) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'en')]"
 async function query_TT4(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
             let value = jp.query(obj, '$.user.lang');
             if (value == "en")
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
         } catch (error) {
             if (DEBUG) console.log(error);
         }
     }
-    return count;
+    return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
 async function query_WM(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
             try {
                 let value = jp.query(obj, '$.bestMarketplacePrice.price');
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
             } catch (error) {
                 if (DEBUG) console.log(error);
             }
             try {
                 let value = jp.query(obj, '$.name');
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
             } catch (error) {
                 if (DEBUG) console.log(error);
             }
         } catch { }
     }
-    return count;
+    return result;
 }
 
 // $.categoryPath[1:3].id
 async function query_BB(dataset) {
     var lineReader = readline.createInterface({ input: fs.createReadStream(base_dir + dataset) });
 
-    var count = 0;
+    var result = [];
     for await (const line of lineReader) {
         try {
             const obj = JSON.parse(line);
             try {
                 let value = jp.query(obj, '$.categoryPath[1:3].id');
-                count += value.length;
+                for (let item of value) {
+                    result.push(item);
+                }
             } catch (error) {
                 if (DEBUG) console.log(error);
             }
         } catch { }
     }
-    return count;
+    return result;
 }
 
 
 async function execute(warmup_query, repeat_query, dataset, func, query) {
     if (DEBUG) console.log("Starting warmup queries on dataset " + dataset);
-    var num_results;
+    var result;
     for (let i = 0; i < warmup_query; i++)
-        num_results = await func(dataset);
+        result = await func(dataset);
+    var numResults = result.length;
     var start = 0;
     var delays = [];
     for (let i = 0; i < repeat_query; i++) {
@@ -154,8 +171,8 @@ async function execute(warmup_query, repeat_query, dataset, func, query) {
     }
     average = delays.reduce((total, delay) => total + delay, 0) / repeat_query;
     std = Math.sqrt(delays.reduce((total, delay) => total + Math.pow((delay - average), 2), 0) / (repeat_query - 1));
-    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms; results: " + num_results);
-    console.log("nodejsonpath," + dataset + "," + query + "," + average + "," + std + "," + num_results + "," + warmup_query + "," + repeat_query);
+    if (DEBUG) console.log("Executed query " + query + " on dataset " + dataset + " in " + average + "ms; results: " + numResults);
+    console.log("nodejsonpath," + dataset + "," + query + "," + average + "," + std + "," + numResults + "," + warmup_query + "," + repeat_query);
 }
 
 module.exports = function() {

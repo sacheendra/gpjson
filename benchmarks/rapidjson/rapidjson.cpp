@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <vector>
 #include <math.h>
 
 #include "src/document.h"
@@ -50,7 +51,7 @@ double stdDev(uint64_t *delays, int n, int average) {
 }
 
 // $.user.lang
-int query_TT1(const char* dataset) {
+vector<string> query_TT1(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -61,23 +62,23 @@ int query_TT1(const char* dataset) {
     rapidjson::Document d;
     d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while(!d.HasParseError()) {
         if (d.IsObject() && d.HasMember("user") && d["user"].IsObject()) {
             if (d["user"].HasMember("lang") && d["user"]["lang"].IsString()) {
-                count++;
+                string value = d["user"]["lang"].GetString();
+                result.push_back(value);
             }
         }
         d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
     }
     
     fclose(fp);
-    return count;
+    return result;
 }
 
 // {$.user.lang, $.lang}
-int query_TT2(const char* dataset) {
+vector<string> query_TT2(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -88,26 +89,27 @@ int query_TT2(const char* dataset) {
     rapidjson::Document d;
     d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while(!d.HasParseError()) {
         if (d.IsObject() && d.HasMember("user") && d["user"].IsObject()) {
             if (d["user"].HasMember("lang") && d["user"]["lang"].IsString()) {
-                count++;
+                string value = d["user"]["lang"].GetString();
+                result.push_back(value);
             }
         }
         if (d.IsObject() && d.HasMember("lang") && d["lang"].IsString()) {
-            count++;
+            string value = d["lang"].GetString();
+            result.push_back(value);
         }
         d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
     }
     
     fclose(fp);
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'nl')]"
-int query_TT3(const char* dataset) {
+vector<string> query_TT3(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -118,23 +120,23 @@ int query_TT3(const char* dataset) {
     rapidjson::Document d;
     d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while(!d.HasParseError()) {
         if (d.IsObject() && d.HasMember("user") && d["user"].IsObject()) {
             if (d["user"].HasMember("lang") && d["user"]["lang"].IsString() && d["user"]["lang"] == "nl") {
-                count++;
+                string value = d["user"]["lang"].GetString();
+                result.push_back(value);
             }
         }
         d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
     }
     
     fclose(fp);
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'en')]"
-int query_TT4(const char* dataset) {
+vector<string> query_TT4(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -145,23 +147,23 @@ int query_TT4(const char* dataset) {
     rapidjson::Document d;
     d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while(!d.HasParseError()) {
         if (d.IsObject() && d.HasMember("user") && d["user"].IsObject()) {
             if (d["user"].HasMember("lang") && d["user"]["lang"].IsString() && d["user"]["lang"] == "en") {
-                count++;
+                string value = d["user"]["lang"].GetString();
+                result.push_back(value);
             }
         }
         d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
     }
     
     fclose(fp);
-    return count;
+    return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
-int query_WM(const char* dataset) {
+vector<string> query_WM(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -172,26 +174,27 @@ int query_WM(const char* dataset) {
     rapidjson::Document d;
     d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while(!d.HasParseError()) {
         if (d.IsObject() && d.HasMember("bestMarketplacePrice") && d["bestMarketplacePrice"].IsObject()) {
-            if (d["bestMarketplacePrice"].HasMember("price") && d["bestMarketplacePrice"]["price"].IsString()) {
-                count++;
+            if (d["bestMarketplacePrice"].HasMember("price") && d["bestMarketplacePrice"]["price"].IsNumber()) {
+                string value = to_string(d["bestMarketplacePrice"]["price"].GetDouble());
+                result.push_back(value);
             }
         }
         if (d.IsObject() && d.HasMember("name") && d["name"].IsString()) {
-            count++;
+            string value = d["name"].GetString();
+            result.push_back(value);
         }
         d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
     }
     
     fclose(fp);
-    return count;
+    return result;
 }
 
 // $.categoryPath[1:3].id
-int query_BB(const char* dataset) {
+vector<string> query_BB(const char* dataset) {
     char path[150];
     strcpy(path, base_dir);
     strcat(path, dataset);
@@ -202,13 +205,13 @@ int query_BB(const char* dataset) {
     rapidjson::Document d;
     d.ParseStream<rapidjson::kParseStopWhenDoneFlag>(is);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while(!d.HasParseError()) {
         if (d.IsObject() && d.HasMember("categoryPath") && d["categoryPath"].IsArray()) {
             for (int i=1; i<3 && i<d["categoryPath"].Size(); i++) {
                 if (d["categoryPath"][i].IsObject() && d["categoryPath"][i].HasMember("id") && d["categoryPath"][i]["id"].IsString()) {
-                    count++;
+                    string value = d["categoryPath"][i]["id"].GetString();
+                    result.push_back(value);
                 }
             }
         }
@@ -216,15 +219,16 @@ int query_BB(const char* dataset) {
     }
     
     fclose(fp);
-    return count;
+    return result;
 }
 
-void execute(const char* dataset, int (*func)(const char*), const char* query) {
+void execute(const char* dataset, vector<string> (*func)(const char*), const char* query) {
     extern bool DEBUG;
     if (DEBUG) cout << "Starting warmup queries on dataset " << dataset << endl;
-    int num_results;
+    vector<string> result;
     for (int i=0; i < warmup_query; i++) 
-        num_results = func(dataset);
+        result = func(dataset);
+    int numResults = result.size();
     uint64_t delays[repeat_query];
     uint64_t begin_time;
     if (DEBUG) cout << "Starting query on dataset " << dataset << endl;
@@ -235,6 +239,6 @@ void execute(const char* dataset, int (*func)(const char*), const char* query) {
     }
     double average = avg(delays, repeat_query);
     double std = stdDev(delays, repeat_query, average);
-    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << num_results << endl;
-    cout << "rapidjson,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
+    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << numResults << endl;
+    cout << "rapidjson,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<numResults<<","<<warmup_query<<","<<repeat_query << endl;
 }

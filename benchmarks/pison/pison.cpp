@@ -72,7 +72,7 @@ double stdDev(uint64_t *delays, int n, int average) {
 }
 
 // $.user.lang
-int query_TT1(char* file) {
+vector<string> query_TT1(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
@@ -89,8 +89,7 @@ int query_TT1(char* file) {
     int num_recs = record_set->size();
     Bitmap* bm = NULL;
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     for (int i = 0; i < num_recs; i++) {
         bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
         BitmapIterator* iter = BitmapConstructor::getIterator(bm);
@@ -98,8 +97,7 @@ int query_TT1(char* file) {
             if (iter->down() == false) continue;
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
+                result.push_back(value);
                 if (value) free(value);
             }
             iter->up();
@@ -109,11 +107,11 @@ int query_TT1(char* file) {
     }
     delete record_set;
 
-    return count;
+    return result;
 }
 
 // $[*].user.lang
-int query_TT1_large(char* file) {
+vector<string> query_TT1_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -130,16 +128,14 @@ int query_TT1_large(char* file) {
     Bitmap* bm = BitmapConstructor::construct(rec, thread_num, level_num);
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while (iter->isArray() && iter->moveNext() == true) {
         if (iter->down() == false) continue;
         if (iter->isObject() && iter->moveToKey("user")) {
             if (iter->down() == false) continue;
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
+                result.push_back(value);
                 if (value) free(value);
             }
             iter->up();
@@ -150,11 +146,11 @@ int query_TT1_large(char* file) {
     delete bm;
     delete rec;
 
-    return count;
+    return result;
 }
 
 // {$.user.lang, $.lang}
-int query_TT2(char* file) {
+vector<string> query_TT2(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
@@ -171,8 +167,7 @@ int query_TT2(char* file) {
     int num_recs = record_set->size();
     Bitmap* bm = NULL;
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     unordered_set<char*> set;
     char* key = NULL;
     for (int i = 0; i < num_recs; i++) {
@@ -183,16 +178,14 @@ int query_TT2(char* file) {
         while (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
             if (strcmp(key, "lang") == 0) {
                 char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
+                result.push_back(value);
                 if (value) free(value);
             } else {
                 if (iter->down() == false) continue;  /* value of "user" */
                 if (iter->isObject() && iter->moveToKey("lang")) {
                     // value of "lang"
                     char* value = iter->getValue();
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                     if (value) free(value);
                 }
                 iter->up();
@@ -203,11 +196,11 @@ int query_TT2(char* file) {
     }
     delete record_set;
     
-    return count;
+    return result;
 }
 
 // {$[*].user.lang, $[*].lang}
-int query_TT2_large(char* file) {
+vector<string> query_TT2_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -224,8 +217,7 @@ int query_TT2_large(char* file) {
     Bitmap* bm = BitmapConstructor::construct(rec, thread_num, level_num);
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     unordered_set<char*> set;
     char* key = NULL;
     while (iter->isArray() && iter->moveNext() == true) {
@@ -235,16 +227,14 @@ int query_TT2_large(char* file) {
         while (iter->isObject() && (key = iter->moveToKey(set)) != NULL) {
             if (strcmp(key, "lang") == 0) {
                 char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
+                result.push_back(value);
                 if (value) free(value);
             } else {
                 if (iter->down() == false) continue;  /* value of "user" */
                 if (iter->isObject() && iter->moveToKey("lang")) {
                     // value of "lang"
                     char* value = iter->getValue();
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                     if (value) free(value);
                 }
                 iter->up();
@@ -256,11 +246,11 @@ int query_TT2_large(char* file) {
     delete bm;
     delete rec;
     
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'nl')]"
-int query_TT3(char* file) {
+vector<string> query_TT3(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
@@ -277,8 +267,7 @@ int query_TT3(char* file) {
     int num_recs = record_set->size();
     Bitmap* bm = NULL;
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     for (int i = 0; i < num_recs; i++) {
         bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
         BitmapIterator* iter = BitmapConstructor::getIterator(bm);
@@ -287,8 +276,7 @@ int query_TT3(char* file) {
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
                 if (strcmp(value, "\"nl\",") == 0) {
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                 }
                 if (value) free(value);
             }
@@ -299,11 +287,11 @@ int query_TT3(char* file) {
     }
     delete record_set;
     
-    return count;
+    return result;
 }
 
 // $[*].user.lang[?(@ == 'nl')]"
-int query_TT3_large(char* file) {
+vector<string> query_TT3_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -320,8 +308,7 @@ int query_TT3_large(char* file) {
     Bitmap* bm = BitmapConstructor::construct(rec, thread_num, level_num);
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while (iter->isArray() && iter->moveNext() == true) {
         if (iter->down() == false) continue;
         if (iter->isObject() && iter->moveToKey("user")) {
@@ -329,8 +316,7 @@ int query_TT3_large(char* file) {
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
                 if (strcmp(value, "\"nl\",") == 0) {
-                    output.append(value).append(";");
-                    count++;                    
+                    result.push_back(value);                  
                 }
                 if (value) free(value);
             }
@@ -342,11 +328,11 @@ int query_TT3_large(char* file) {
     delete bm;
     delete rec;
     
-    return count;
+    return result;
 }
 
 // $.user.lang[?(@ == 'en')]"
-int query_TT4(char* file) {
+vector<string> query_TT4(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
@@ -363,8 +349,7 @@ int query_TT4(char* file) {
     int num_recs = record_set->size();
     Bitmap* bm = NULL;
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     for (int i = 0; i < num_recs; i++) {
         bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
         BitmapIterator* iter = BitmapConstructor::getIterator(bm);
@@ -373,8 +358,7 @@ int query_TT4(char* file) {
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
                 if (strcmp(value, "\"en\",") == 0) {
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                 }
                 if (value) free(value);
             }
@@ -385,11 +369,11 @@ int query_TT4(char* file) {
     }
     delete record_set;
     
-    return count;
+    return result;
 }
 
 // $[*].user.lang[?(@ == 'en')]"
-int query_TT4_large(char* file) {
+vector<string> query_TT4_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -406,8 +390,7 @@ int query_TT4_large(char* file) {
     Bitmap* bm = BitmapConstructor::construct(rec, thread_num, level_num);
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     while (iter->isArray() && iter->moveNext() == true) {
         if (iter->down() == false) continue;
         if (iter->isObject() && iter->moveToKey("user")) {
@@ -415,8 +398,7 @@ int query_TT4_large(char* file) {
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
                 if (strcmp(value, "\"en\",") == 0) {
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                 }
                 if (value) free(value);
             }
@@ -428,11 +410,11 @@ int query_TT4_large(char* file) {
     delete bm;
     delete rec;
     
-    return count;
+    return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
-int query_WM(char* file) {
+vector<string> query_WM(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
@@ -449,8 +431,7 @@ int query_WM(char* file) {
     int num_recs = record_set->size();
     Bitmap* bm = NULL;
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     unordered_set<char*> set;
     char* key = NULL;
     for (int i = 0; i < num_recs; i++) {
@@ -463,15 +444,13 @@ int query_WM(char* file) {
                 if (iter->down() == false) continue;
                 if (iter->isObject() && iter->moveToKey("price")) {
                     char* value = iter->getValue();
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                     if (value) free(value);
                 }
                 iter->up();
             } else {
                 char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
+                result.push_back(value);
                 if (value) free(value);
             }
         }
@@ -480,11 +459,11 @@ int query_WM(char* file) {
     }
     delete record_set;
 
-    return count;
+    return result;
 }
 
 // {$[*].bestMarketplacePrice.price, $[*].name}
-int query_WM_large(char* file) {
+vector<string> query_WM_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -501,8 +480,7 @@ int query_WM_large(char* file) {
     Bitmap* bm = BitmapConstructor::construct(rec, thread_num, level_num);
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     unordered_set<char*> set;
     char* key = NULL;
     while (iter->isArray() && iter->moveNext() == true) {
@@ -514,15 +492,13 @@ int query_WM_large(char* file) {
                 if (iter->down() == false) continue;
                 if (iter->isObject() && iter->moveToKey("price")) {
                     char* value = iter->getValue();
-                    output.append(value).append(";");
-                    count++;
+                    result.push_back(value);
                     if (value) free(value);
                 }
                 iter->up();
             } else {
                 char* value = iter->getValue();
-                output.append(value).append(";");
-                count++;
+                result.push_back(value);
                 if (value) free(value);
             }
         }
@@ -532,11 +508,11 @@ int query_WM_large(char* file) {
     delete bm;
     delete rec;
 
-    return count;
+    return result;
 }
 
 // $.categoryPath[1:3].id
-int query_BB(char* file) {
+vector<string> query_BB(char* file) {
     RecordSet* record_set = getRecordSet(file);
 
     // set the number of threads for parallel bitmap construction
@@ -553,8 +529,7 @@ int query_BB(char* file) {
     int num_recs = record_set->size();
     Bitmap* bm = NULL;
 
-    string output = "";
-    int count = 0;
+    vector<string> result;
     for (int i = 0; i < num_recs; i++) {
         bm = BitmapConstructor::construct((*record_set)[i], thread_num, level_num);
         BitmapIterator* iter = BitmapConstructor::getIterator(bm);
@@ -567,8 +542,7 @@ int query_BB(char* file) {
                         if (iter->isObject() && iter->moveToKey("id")) {
                             // value of "id"
                             char* value = iter->getValue();
-                            output.append(value).append(";");
-                            count++;
+                            result.push_back(value);
                             if (value) free(value);
                         }
                         iter->up();
@@ -582,11 +556,11 @@ int query_BB(char* file) {
     }
     delete record_set;
 
-    return count;
+    return result;
 }
 
 // $[*].categoryPath[1:3].id
-int query_BB_large(char* file) {
+vector<string> query_BB_large(char* file) {
     Record* rec = getRecord(file);
 
     // set the number of threads for parallel bitmap construction
@@ -603,10 +577,7 @@ int query_BB_large(char* file) {
     Bitmap* bm = BitmapConstructor::construct(rec, thread_num, level_num);
     BitmapIterator* iter = BitmapConstructor::getIterator(bm);
 
-    string output = "";
-    int count = 0;
-    // iter->moveToKey("products");
-    // iter->down();
+    vector<string> result;
     while (iter->isArray() && iter->moveNext() == true) {
         if (iter->down() == false) continue;  /* array element on the top level */
         if (iter->isObject() && iter->moveToKey("categoryPath")) {
@@ -618,8 +589,7 @@ int query_BB_large(char* file) {
                         if (iter->isObject() && iter->moveToKey("id")) {
                             // value of "id"
                             char* value = iter->getValue();
-                            output.append(value).append(";");
-                            count++;
+                            result.push_back(value);
                             if (value) free(value);
                         }
                         iter->up();
@@ -634,15 +604,16 @@ int query_BB_large(char* file) {
     delete bm;
     delete rec;
 
-    return count;
+    return result;
 }
 
-void execute(char* dataset, int (*func)(char*), const char* query) {
+void execute(char* dataset, vector<string> (*func)(char*), const char* query) {
     extern bool DEBUG;
     if (DEBUG) cout << "Starting warmup queries on dataset " << dataset << endl;
-    int num_results;
+    vector<string> result;
     for (int i=0; i < warmup_query; i++) 
-        num_results = func(dataset);
+        result = func(dataset);
+    int numResults = result.size();
     uint64_t delays[repeat_query];
     uint64_t begin_time;
     if (DEBUG) cout << "Starting query on dataset " << dataset << endl;
@@ -653,6 +624,6 @@ void execute(char* dataset, int (*func)(char*), const char* query) {
     }
     double average = avg(delays, repeat_query);
     double std = stdDev(delays, repeat_query, average);
-    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << num_results << endl;
-    cout << "pison,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<num_results<<","<<warmup_query<<","<<repeat_query << endl;
+    if (DEBUG) cout << "Executed query " << query << " on dataset " << dataset << " in " << average << "ms; results: " << numResults << endl;
+    cout << "pison,"<<dataset<<","<<query<<","<<average<<","<<std<<","<<numResults<<","<<warmup_query<<","<<repeat_query << endl;
 }

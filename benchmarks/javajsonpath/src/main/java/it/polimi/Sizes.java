@@ -5,7 +5,7 @@ public class Sizes {
     private final static String baseDir = "../../../datasets/";
 
     interface I {
-        public int query(String dataset);
+        public List<String> query(String dataset);
     }
 
     public static void main(String[] args) {
