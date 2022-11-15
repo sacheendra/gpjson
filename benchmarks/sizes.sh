@@ -15,10 +15,12 @@ REPEAT=10
 
 # Read command parameters
 noGPU=false
-while getopts g OPT
+while getopts gw:r: OPT
 do
     case "$OPT" in
         g) noGPU=true ;;
+        w) WARMUP=${OPTARG} ;;
+        r) REPEAT=${OPTARG} ;;
     esac
 done
 
