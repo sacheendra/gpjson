@@ -20,14 +20,14 @@ public class Query {
             System.out.println("Could not load dataset file.");
         }
         List<String> result = lines.flatMap((String x) -> {
-        Object document = Configuration.defaultConfiguration().jsonProvider().parse(x);
-        List<String> items = new LinkedList();
-        try {
-            String value = JsonPath.read(document, "$.user.lang");
-            items.add(value);
-        } catch (PathNotFoundException e) {}
-        return items.stream();
-        }).collect(Collectors.toList());
+            Object document = Configuration.defaultConfiguration().jsonProvider().parse(x);
+            List<String> items = new LinkedList();
+            try {
+                String value = JsonPath.read(document, "$.user.lang");
+                items.add(value);
+            } catch (PathNotFoundException e) {}
+            return items.stream();
+            }).collect(Collectors.toList());
         return result;
     }
 
