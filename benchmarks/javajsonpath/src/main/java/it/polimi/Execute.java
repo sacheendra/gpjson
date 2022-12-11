@@ -42,6 +42,9 @@ public class Execute {
             else if (args[i].contains("repeat=")) {
                 repeat_query = Integer.parseInt(args[i].substring(7));
             }
+            else if (args[i].contains("threads=")) {
+                System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", args[i].substring(8));
+            }
         }
     }
 }

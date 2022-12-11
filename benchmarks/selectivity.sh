@@ -12,6 +12,7 @@ NODE_PATH="$NODE_DIR/bin"
 GRAAL_PATH="$GRAAL_DIR/bin"
 WARMUP=5
 REPEAT=10
+THREADS=11 #12-1 (java default for a 12 core machine)
 
 # Read command parameters
 noGPU=false
@@ -40,7 +41,7 @@ fi
 echo "running javajsonpath"
 cd javajsonpath
 mvn package > /dev/null 2>&1
-java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.Selectivity warmup=$WARMUP repeat=$REPEAT >> ../selectivity.csv
+java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.Selectivity warmup=$WARMUP repeat=$REPEAT threads=$THREADS >> ../selectivity.csv
 cd ..
 
 # nodejsonpath
