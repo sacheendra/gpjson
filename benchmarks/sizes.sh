@@ -14,14 +14,15 @@ WARMUP=5
 REPEAT=10
 THREADS=11 #12-1 (java default for a 12 core machine)
 
-# Read command parameters
+# Read command parameters - usage: -g -w {number} -r {number} -t {number}
 noGPU=false
-while getopts gw:r: OPT
+while getopts gw:r:t: OPT
 do
     case "$OPT" in
         g) noGPU=true ;;
         w) WARMUP=${OPTARG} ;;
         r) REPEAT=${OPTARG} ;;
+        t) THREADS=${OPTARG} ;;
     esac
 done
 
