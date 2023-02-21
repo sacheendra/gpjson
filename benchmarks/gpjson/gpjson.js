@@ -44,37 +44,37 @@ function countResults(result) {
 
 // $.user.lang
 function query_TT1(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang"], true, false);
+    result = engine.query(baseDir + dataset, ["$.user.lang"], true, true);
     return result;
 }
 
 // {$.user.lang, $.lang}
 function query_TT2(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang", "$.lang"], true, false);
+    result = engine.query(baseDir + dataset, ["$.user.lang", "$.lang"], true, true);
     return result;
 }
 
 // $.user.lang[?(@ == 'nl')]
 function query_TT3(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang[?(@ == 'nl')]"], true, false);
+    result = engine.query(baseDir + dataset, ["$.user.lang[?(@ == 'nl')]"], true, true);
     return result;
 }
 
 // $.user.lang[?(@ == 'en')]
 function query_TT4(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang[?(@ == 'en')]"], true, false);
+    result = engine.query(baseDir + dataset, ["$.user.lang[?(@ == 'en')]"], true, true);
     return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
 function query_WM(dataset) {
-    result = engine.query(baseDir + dataset, ["$.bestMarketplacePrice.price", "$.name"], true, false);
+    result = engine.query(baseDir + dataset, ["$.bestMarketplacePrice.price", "$.name"], true, true);
     return result;
 }
 
 // $.categoryPath[1:3].id
 function query_BB(dataset) {
-    result = engine.query(baseDir + dataset, ["$.categoryPath[1:3].id"], true, false);
+    result = engine.query(baseDir + dataset, ["$.categoryPath[1:3].id"], true, true);
     return result;
 }
 
