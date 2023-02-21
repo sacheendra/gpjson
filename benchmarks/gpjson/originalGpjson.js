@@ -3,7 +3,7 @@ const fs = require('fs');
 const { performance } = require('perf_hooks');
 
 var baseDir;
-var engine;
+var gpjson;
 var DEBUG;
 
 // https://stackoverflow.com/a/18650828
@@ -18,8 +18,7 @@ function formatBytes(bytes, decimals = 2) {
 
 function init(dir) {
     baseDir = dir;
-    engine = Polyglot.eval('gpjson', "GJ");
-    engine.buildKernels();
+    gpjson = Polyglot.eval('gpjson', 'jsonpath');
     const myArgs = process.argv.slice(2);
     DEBUG = myArgs.includes("DEBUG") ? true : false;
     let idx = myArgs.findIndex(v => v.includes("warmup="));
@@ -44,37 +43,37 @@ function countResults(result) {
 
 // $.user.lang
 function query_TT1(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang"], true, false);
+    result = gpjson.query(baseDir + dataset, "$.user.lang");
     return result;
 }
 
 // {$.user.lang, $.lang}
 function query_TT2(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang", "$.lang"], true, false);
+    result = gpjson.query(baseDir + dataset, ["$.user.lang", "$.lang"]);
     return result;
 }
 
 // $.user.lang[?(@ == 'nl')]
 function query_TT3(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang[?(@ == 'nl')]"], true, false);
+    result = gpjson.query(baseDir + dataset, "$.user.lang[?(@ == 'nl')]");
     return result;
 }
 
 // $.user.lang[?(@ == 'en')]
 function query_TT4(dataset) {
-    result = engine.query(baseDir + dataset, ["$.user.lang[?(@ == 'en')]"], true, false);
+    result = gpjson.query(baseDir + dataset, "$.user.lang[?(@ == 'en')]");
     return result;
 }
 
 // {$.bestMarketplacePrice.price, $.name}
 function query_WM(dataset) {
-    result = engine.query(baseDir + dataset, ["$.bestMarketplacePrice.price", "$.name"], true, false);
+    result = gpjson.query(baseDir + dataset, ["$.bestMarketplacePrice.price", "$.name"]);
     return result;
 }
 
 // $.categoryPath[1:3].id
 function query_BB(dataset) {
-    result = engine.query(baseDir + dataset, ["$.categoryPath[1:3].id"], true, false);
+    result = gpjson.query(baseDir + dataset, "$.categoryPath[1:3].id");
     return result;
 }
 
