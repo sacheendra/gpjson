@@ -4,7 +4,7 @@ int main(int argc, char *argv[]) {
     char base_dir[] = "../../../datasets/";
     init(argc, argv, base_dir);
 
-    char* twitter[7];
+    char* twitter[9];
     twitter[0] = "twitter_small_records.json";
     twitter[1] = "twitter_small_records_0.125x.json";
     twitter[2] = "twitter_small_records_0.25x.json";
