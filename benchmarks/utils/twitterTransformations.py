@@ -71,5 +71,5 @@ for target in [0,25,50,75,100]:
     deleteUserLang(target)
     deleteUser(target)
 
-for target in [0.125,0.25,0.5,1.5,2,2.5]:
+for target in [0.125,0.25,0.5,2,4,8,12,16,32]:
     targetSize(target)
