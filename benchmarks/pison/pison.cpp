@@ -40,7 +40,8 @@ Record* getRecord(char* file) {
 }
 
 RecordSet* getRecordSet(char* file) {
-    char path[150] = "/home/ubuntu/datasets/";
+    char path[150];
+    strcpy(path, base_dir);
     strcat(path, file);
     RecordSet* rec_set = RecordLoader::loadRecords(path);
     if (rec_set->size() == 0) {
