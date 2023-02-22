@@ -14,11 +14,10 @@ def targetSize(factor):
     while (currentSize < targetSize):
         source = open(baseDir+dataset, "r")
         while line:= source.readline():
-            obj = json.loads(line)
             currentSize = destination.tell()
             if currentSize >= targetSize:
                 break
-            destination.write(json.dumps(obj)+"\n")
+            destination.write(line)
         source.close()
     destination.close()
 
