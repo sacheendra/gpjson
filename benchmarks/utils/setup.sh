@@ -27,3 +27,9 @@ sudo update-alternatives --config java
 
 # Keep bash session open
 exec bash
+
+# Install Data Center GPU manager (for A100)
+sudo apt-get update
+sudo apt-get install -y datacenter-gpu-manager
+sudo apt-get install cuda-drivers-fabricmanager-520
+sudo service nvidia-fabricmanager start
