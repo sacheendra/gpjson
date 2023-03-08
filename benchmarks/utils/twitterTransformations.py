@@ -3,16 +3,17 @@ import json
 import random
 import os
 
-baseDir = "../../../datasets/"
+inputDir = "../../../datasets/"
+outputDir = "../../../datasets-ext/"
 dataset = "twitter_small_records.json"
 
 
 def targetSize(factor):
-    targetSize = os.stat(baseDir+dataset).st_size * factor
-    destination = open(baseDir+dataset.split(".")[0] + "_" + str(factor) + "x" + ".json", "w")
+    targetSize = os.stat(inputDir+dataset).st_size * factor
+    destination = open(outputDir+dataset.split(".")[0] + "_" + str(factor) + "x" + ".json", "w")
     currentSize = destination.tell()
     while (currentSize < targetSize):
-        source = open(baseDir+dataset, "r")
+        source = open(inputDir+dataset, "r")
         while line:= source.readline():
             currentSize = destination.tell()
             if currentSize >= targetSize:
@@ -22,8 +23,8 @@ def targetSize(factor):
     destination.close()
 
 def changeUserLang(targetSelectivity):
-    source = open(baseDir+dataset, "r")
-    destination = open(baseDir+dataset.split(".")[0] + "_" + "changeUserLang" + str(targetSelectivity) + ".json", "w")
+    source = open(inputDir+dataset, "r")
+    destination = open(outputDir+dataset.split(".")[0] + "_" + "changeUserLang" + str(targetSelectivity) + ".json", "w")
     for line in source:
         obj = json.loads(line)
         choice = random.randint(1,100)
@@ -37,8 +38,8 @@ def changeUserLang(targetSelectivity):
     destination.close()
 
 def deleteUserLang(targetSelectivity):
-    source = open(baseDir+dataset, "r")
-    destination = open(baseDir+dataset.split(".")[0] + "_" + "deleteUserLang" + str(targetSelectivity) + ".json", "w")
+    source = open(inputDir+dataset, "r")
+    destination = open(outputDir+dataset.split(".")[0] + "_" + "deleteUserLang" + str(targetSelectivity) + ".json", "w")
     for line in source:
         obj = json.loads(line)
         choice = random.randint(1,100)
@@ -52,8 +53,8 @@ def deleteUserLang(targetSelectivity):
     destination.close()
 
 def deleteUser(targetSelectivity):
-    source = open(baseDir+dataset, "r")
-    destination = open(baseDir+dataset.split(".")[0] + "_" + "deleteUser" + str(targetSelectivity) + ".json", "w")
+    source = open(inputDir+dataset, "r")
+    destination = open(outputDir+dataset.split(".")[0] + "_" + "deleteUser" + str(targetSelectivity) + ".json", "w")
     for line in source:
         obj = json.loads(line)
         choice = random.randint(1,100)
@@ -66,10 +67,10 @@ def deleteUser(targetSelectivity):
     source.close()
     destination.close()
 
-for target in [0,25,50,75,100]:
+for target in []:
     changeUserLang(target)
     deleteUserLang(target)
     deleteUser(target)
 
-for target in [0.125,0.25,0.5,2,4,8,12,16,32]:
+for target in []:
     targetSize(target)
