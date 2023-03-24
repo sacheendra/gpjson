@@ -73,4 +73,6 @@ for target in []:
     deleteUser(target)
 
 for target in []:
+    print(f"Generating {target}x")
     targetSize(target)
+    print(f"{target}x done!")
