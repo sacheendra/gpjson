@@ -1,4 +1,5 @@
 target/
-*/bin/*
-*/package.json
-*/package-lock.json
+**/bin/**
+**/package.json
+**/package-lock.json
+**/node_modules
