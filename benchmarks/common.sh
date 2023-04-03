@@ -27,7 +27,7 @@ do
 done
 
 echo "Starting benchmarks. skip GPU: $noGPU, warmup: $WARMUP, repeat: $REPEAT, threads: $THREADS, datasets: $DATASETS"
-echo "engine,dataset,query,time,stddev,results,warmup,repeat" > $SUITE.csv
+echo "engine,dataset,query,time,stddev,results,warmup,repeat,options" > $SUITE.csv
 
 nodejsonpath() {
     node nodejsonpath $1 $2 $3 $4 $5
@@ -59,34 +59,38 @@ simdjson() {
 
 gpjson() {
     echo "running gpjson"
-    $1/node --jvm --polyglot suite/node/$SUITE.js warmup=$2 repeat=$3 engine=gpjson datasets=$4 >> $SUITE.csv
+    execute "$1/node --jvm --polyglot suite/node/$SUITE.js warmup=$2 repeat=$3 engine=gpjson datasets=$4" "none"
 }
 
 gpjsonWithOptions() {
     echo "running gpjson with $2"
-    $1/node --jvm --polyglot --experimental-options $2 suite/node/$SUITE.js warmup=$3 repeat=$4 engine=gpjson datasets=$5 >> $SUITE.csv
+    execute "$1/node --jvm --polyglot --experimental-options $2 suite/node/$SUITE.js warmup=$3 repeat=$4 engine=gpjson datasets=$5" $2
 }
 
 javajsonpath() {
     cd suite/javajsonpath
     echo "running javajsonpath"
     mvn package > /dev/null 2>&1
-    java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.$1 warmup=$2 repeat=$3 threads=$4 datasets=$5 >> ../../$SUITE.csv
+    execute "java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.$1 warmup=$2 repeat=$3 threads=$4 datasets=$5" "none"
     cd ../..
 }
 
-node () {
+node() {
     echo "running $1"
-    $2/node suite/node/$SUITE.js warmup=$3 repeat=$4 engine=$1 datasets=$5 >> $SUITE.csv
+    execute "$2/node suite/node/$SUITE.js warmup=$3 repeat=$4 engine=$1 datasets=$5" "none"
 }
 
 bin() {
     echo "running $1"
-    suite/cpp/bin/$1/$2 warmup=$3 repeat=$4 datasets=$5 >> $SUITE.csv
+    execute "suite/cpp/bin/$1/$2 warmup=$3 repeat=$4 datasets=$5" "none"
 }
 
 binCompile() {
     cd suite/cpp
     make $SUITE > /dev/null 2>&1
     cd ../..
+}
+
+execute() {
+    $1 | while read line; do echo ${line},$2; done >> $SUITE.csv
 }
