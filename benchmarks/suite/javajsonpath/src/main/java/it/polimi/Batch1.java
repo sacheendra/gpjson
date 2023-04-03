@@ -2,15 +2,13 @@ package it.polimi;
 import java.util.List;
 
 public class Batch1 {
-    private final static String baseDir = "../../../datasets/";
-
     interface I {
         public List<String> query(String dataset);
     }
 
     public static void main(String[] args) {
         Execute exe = new Execute();
-        exe.init(args, baseDir);
+        exe.init(args);
 
         String twitter_small = "twitter_small_records.json";
         String bestbuy_small = "bestbuy_small_records.json";

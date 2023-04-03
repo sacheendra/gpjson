@@ -2,15 +2,13 @@ package it.polimi;
 import java.util.*;
 
 public class Sizes {
-    private final static String baseDir = "../../../datasets/";
-
     interface I {
         public List<String> query(String dataset);
     }
 
     public static void main(String[] args) {
         Execute exe = new Execute();
-        exe.init(args, baseDir);
+        exe.init(args);
 
         List<String> twitter = new ArrayList<>();
         twitter.add("twitter_small_records.json");
