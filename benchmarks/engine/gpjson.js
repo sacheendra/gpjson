@@ -1,5 +1,8 @@
 var engine;
 
+var file;
+var index;
+
 function init(dir) {
     baseDir = dir;
     engine = Polyglot.eval('gpjson', "GJ");
@@ -10,6 +13,23 @@ function init(dir) {
 function queryTT1(dataset) {
     result = engine.query(dataset, ["$.user.lang"], true, true);
     return result;
+}
+
+function queryTT1_10qSetup(dataset) {
+    file = engine.load(dataset, true);
+    index = file.index(3, true);
+}
+
+function queryTT1_10q(dataset) {
+    let result = [];
+    for (let i=0; i<10; i++)
+        result[i] = index.query("$.user.lang");
+    return result;
+}
+
+function queryTT1_10qFree() {
+    index.free();
+    file.free();
 }
 
 // {$.user.lang, $.lang}
@@ -56,5 +76,5 @@ function count(result) {
 }
 
 module.exports = { 
-    init, count, queryTT1, queryTT2, queryTT3, queryTT4, queryWM, queryBB
+    init, count, queryTT1, queryTT2, queryTT3, queryTT4, queryWM, queryBB, queryTT1_10q, queryTT1_10qSetup, queryTT1_10qFree
 }
