@@ -64,7 +64,7 @@ gpjson() {
 
 gpjsonWithOptions() {
     echo "running gpjson with $2"
-    execute "$1/node --jvm --polyglot --experimental-options $2 suite/node/$SUITE.js warmup=$3 repeat=$4 engine=gpjson datasets=$5" $2
+    execute "$1/node --jvm --polyglot --experimental-options $2 suite/node/$SUITE.js warmup=$3 repeat=$4 engine=gpjson datasets=$5" "$2"
 }
 
 javajsonpath() {
