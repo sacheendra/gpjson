@@ -46,7 +46,7 @@ vector<Result> queryTT1(char* file) {
      * query or the JSON records. E.g., query $[*].user.id needs three levels
      * (level 0, 1, 2), but the record may be of more than three levels
      */
-    int level_num = 5;
+    int level_num = 3;
 
     /* process the records one by one: for each one, first build bitmap, then perform
      * the query with a bitmap iterator
