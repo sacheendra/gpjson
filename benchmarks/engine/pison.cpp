@@ -151,7 +151,7 @@ vector<Result> queryTT3(char* file) {
             if (iter->down() == false) continue;
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
-                if (strcmp(value, "\"nl\",") == 0) {
+                if (strcmp(value, "\"nl\",") == 0 || strcmp(value, " \"nl\", ") == 0) {
                     result.push_back(CharPtResult(value));
                 }
                 if (value) free(value);
@@ -192,7 +192,7 @@ vector<Result> queryTT4(char* file) {
             if (iter->down() == false) continue;
             if (iter->isObject() && iter->moveToKey("lang")) {
                 char* value = iter->getValue();
-                if (strcmp(value, "\"en\",") == 0) {
+                if (strcmp(value, "\"en\",") == 0 || strcmp(value, " \"en\", ") == 0) {
                     result.push_back(CharPtResult(value));
                 }
                 if (value) free(value);
