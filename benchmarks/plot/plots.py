@@ -19,7 +19,7 @@ plots = dict()
 
 frame = pd.DataFrame()
 for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    temp = pd.read_csv("vldb/batch1/"+filename)
+    temp = pd.read_csv("../result/vldb/batch1/"+filename)
     temp['machine'] = filename[:-4].upper()
     frame = pd.concat([frame, temp])
 frame['time'] = frame['time'] / 1000
@@ -44,12 +44,12 @@ plots["GPUOverview"] = { "data": frame,
 
 frame = pd.DataFrame()
 for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    temp = pd.read_csv("vldb/batch1/"+filename)
+    temp = pd.read_csv("../result/vldb/batch1/"+filename)
     temp = temp.loc[temp['engine'] == "gpjson"]
     temp['machine'] = "OPTIMIZED3-12c"
     temp['engine'] = "gpjson" + "-" + filename[:-4].upper()
     frame = pd.concat([frame, temp])
-temp = pd.read_csv("vldb/batch1/optimized3-12c.csv")
+temp = pd.read_csv("../result/vldb/batch1/optimized3-12c.csv")
 temp['machine'] = "OPTIMIZED3-12c"
 frame = pd.concat([frame, temp])
 frame['time'] = frame['time'] / 1000
@@ -73,12 +73,12 @@ plots["HPCOverview"] = { "data": frame,
 
 frame = pd.DataFrame()
 for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    temp = pd.read_csv("vldb/sizes/"+filename)
+    temp = pd.read_csv("../result/vldb/sizes/"+filename)
     temp = temp.loc[temp['engine'] == "gpjson"]
     temp['machine'] = "OPTIMIZED3-12c"
     temp['engine'] = "gpjson" + "-" + filename[:-4].upper()
     frame = pd.concat([frame, temp])
-temp = pd.read_csv("vldb/sizes/optimized3-12c.csv")
+temp = pd.read_csv("../result/vldb/sizes/optimized3-12c.csv")
 temp['machine'] = "OPTIMIZED3-12c"
 frame = pd.concat([frame, temp])
 frame['stddev'] = 0
@@ -108,12 +108,12 @@ plots["HPCSizes1"] = { "data": frame,
 
 frame = pd.DataFrame()
 for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    temp = pd.read_csv("vldb/sizes/"+filename)
+    temp = pd.read_csv("../result/vldb/sizes/"+filename)
     temp = temp.loc[temp['engine'] == "gpjson"]
     temp['machine'] = "OPTIMIZED3-12c"
     temp['engine'] = "gpjson" + "-" + filename[:-4].upper()
     frame = pd.concat([frame, temp])
-temp = pd.read_csv("vldb/sizes/optimized3-12c.csv")
+temp = pd.read_csv("../result/vldb/sizes/optimized3-12c.csv")
 temp['machine'] = "OPTIMIZED3-12c"
 frame = pd.concat([frame, temp])
 frame['stddev'] = 0
@@ -143,12 +143,12 @@ plots["HPCSizes2"] = { "data": frame,
 
 frame = pd.DataFrame()
 for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    temp = pd.read_csv("vldb/selectivity/"+filename)
+    temp = pd.read_csv("../result/vldb/selectivity/"+filename)
     temp = temp.loc[temp['engine'] == "gpjson"]
     temp['machine'] = "OPTIMIZED3-12c"
     temp['engine'] = "gpjson" + "-" + filename[:-4].upper()
     frame = pd.concat([frame, temp])
-temp = pd.read_csv("vldb/selectivity/optimized3-12c.csv")
+temp = pd.read_csv("../result/vldb/selectivity/optimized3-12c.csv")
 temp['machine'] = "OPTIMIZED3-12c"
 frame = pd.concat([frame, temp])
 for engine in frame['engine'].unique():
