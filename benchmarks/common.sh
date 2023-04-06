@@ -71,8 +71,8 @@ javajsonpath() {
     cd suite/javajsonpath
     echo "running javajsonpath"
     mvn package > /dev/null 2>&1
-    execute "java -cp target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.$1 warmup=$2 repeat=$3 threads=$4 datasets=$5" "none"
     cd ../..
+    execute "java -cp suite/javajsonpath/target/javajsonpath-1.0-SNAPSHOT-jar-with-dependencies.jar it.polimi.$1 warmup=$2 repeat=$3 threads=$4 datasets=$5" "none"
 }
 
 node() {
