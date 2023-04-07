@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.patches import Patch
 from plot_utils import *
-
+import math
 
 sns.set_style("whitegrid", {"ytick.left": True})
 plt.rcParams["font.family"] = ["serif"]
@@ -25,7 +25,7 @@ def GPUsBatch1(filename):
     frame['stddev'] = frame['stddev'] / 1000
     tempColors = [colors[i] for i in [3, 4, 5, 6, 7, 8, 9, 10]]
     tempColors.insert(0, colors[0])
-    return {"name": "GPUOverview-"+filename,
+    return {"name": "GPUOverview-"+filename[:-4].upper(),
         "data": frame,
         "ratio": "gpjson", 
         "bar_label": "edge",
@@ -40,6 +40,7 @@ def GPUsBatch1(filename):
         "col": 'query',
         "col_order": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
         "col_labels": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_wrap": 3,
         "labels": ['GpJSON', 'Node jsonpath', 'Node jsonpath-plus', 'Node manual', 'Node simdjson', 'Java JSONPath', 'Pison', 'RapidJSON', 'simdjson'],
         "colors": tempColors
         }
@@ -116,6 +117,7 @@ def sizes():
         "col": 'dataset',
         "col_order": ["twitter_small_records_0.125x.json", "twitter_small_records_0.25x.json", "twitter_small_records_0.5x.json", "twitter_small_records.json", "twitter_small_records_2x.json", "twitter_small_records_4x.json", "twitter_small_records_8x.json", "twitter_small_records_12x.json", "twitter_small_records_16x.json"],
         "col_labels": ["0.125x", "0.25x", "0.5x", "1x", "2x", "4x", "8x", "12x", "16x"],
+        "col_wrap": 3,
         "labels": ['GpJSON-GPU4.8', 'GpJSON-GPU3.1', 'GpJSON-GPU2.1' ,'Java JSONPath', 'Pison', 'RapidJSON', 'simdjson'],
         "colors": colors
         }
@@ -164,6 +166,170 @@ def selectivity():
         "colors": colors
         }
 
+def syncVSAsync(filename):
+    frame = pd.DataFrame()
+    temp = pd.read_csv(dir+"syncAsync/"+filename)
+    temp = temp.loc[temp['engine'] == "gpjson"]
+    for executionPolicy in temp['options'].unique():
+        temp.loc[(temp['options'] == executionPolicy), 'engine'] = "gpjson" + "-" + executionPolicy.split("=")[1]
+    frame = pd.concat([frame, temp])
+    frame['time'] = frame['time'] / 1000
+    frame['stddev'] = frame['stddev'] / 1000
+    maxVal = frame['time'].max()
+    maxVal = math.ceil(maxVal * 10) / 10
+    return {"name": "syncVSAsync",
+        "data": frame,
+        "ratio": "gpjson-async", 
+        "bar_label": "edge",
+        "bar_label_padding": 10, 
+        "limit": [[0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal]],
+        "xlabel": "Execution Policy", 
+        "ylabel": "Execution Time [s]",
+        "ncols": 3,
+        "bbox_to_anchor": -3,
+        "bottomPadding": 0.22,
+        "topPadding": 0.8,
+        "aspect": 0.5,
+        "wspace": 0.8,
+        "engine_order": ['gpjson-async', 'gpjson-sync'],
+        "col": 'query',
+        "col_order": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_labels": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_wrap": 6,
+        "labels": ['Async', 'Sync'],
+        "colors": colors
+        }
+
+def numGPUs(filename):
+    frame = pd.DataFrame()
+    temp = pd.read_csv(dir+"numGPUs/"+filename)
+    temp = temp.loc[temp['engine'] == "gpjson"]
+    for numGPUs in temp['options'].unique():
+        temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
+    frame = pd.concat([frame, temp])
+    frame['time'] = frame['time'] / 1000
+    frame['stddev'] = frame['stddev'] / 1000
+    frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
+    maxVal = frame['time'].max()
+    maxVal = math.ceil(maxVal * 10) / 10
+    return {"name": "numGPUs"+filename[:-4].upper(),
+        "data": frame,
+        "ratio": "gpjson-1", 
+        "bar_label": "edge",
+        "bar_label_padding": 8, 
+        "limit": [[0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal]],
+        "xlabel": "GPU Count", 
+        "ylabel": "Execution Time [s]",
+        "ncols": 4,
+        "bbox_to_anchor": -0.5,
+        "bottomPadding": 0.22,
+        "topPadding": 0.78,
+        "aspect": 0.6,
+        "wspace": 0.25,
+        "title_y": 1.2,
+        "engine_order": ['gpjson-1', 'gpjson-2', 'gpjson-4', 'gpjson-8'],
+        "col": 'dataset',
+        "col_order": ["twitter_small_records_8x.json", "twitter_small_records_12x.json", "twitter_small_records_16x.json", "twitter_small_records_32x.json", "twitter_small_records_64x.json"],
+        "col_labels": ["8x", "12x", "16x", "32x", "64x"],
+        "col_wrap": 5,
+        "labels": ['1 GPU', '2 GPUs', '4 GPUs', '8 GPUs'],
+        "colors": colors
+        }
+
+def numGPUs_10q(filename):
+    frame = pd.DataFrame()
+    temp = pd.read_csv(dir+"10q-numGPUs/"+filename)
+    temp = temp.loc[temp['engine'] == "gpjson"]
+    for numGPUs in temp['options'].unique():
+        temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
+        frame = pd.concat([frame, temp])
+    frame['time'] = frame['time'] / 1000
+    frame['stddev'] = 0
+    frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
+    baseSize = 0.807
+    for engine in frame['engine'].unique():
+            for dataset in frame['dataset'].unique():
+                multiplier = 1 if (dataset == 'twitter_small_records.json') else float(dataset.split("_")[3].split("x")[0])
+                frame.loc[(frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'] = 10 / frame.loc[(frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0] / baseSize * multiplier
+    maxVal = frame['time'].max()
+    maxVal = math.ceil(maxVal * 10) / 10
+    return {"name": "10q-numGPUs",
+        "data": frame,
+        "ratio": "gpjson-8", 
+        "bar_label": "edge",
+        "bar_label_padding": 8, 
+        "limit": [[0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal]],
+        "xlabel": "GPU Count", 
+        "ylabel": "Speed [query / (s * GB)]",
+        "ncols": 4,
+        "bbox_to_anchor": 0.1,
+        "bottomPadding": 0.22,
+        "topPadding": 0.78,
+        "aspect": 0.6,
+        "wspace": 0.25,
+        "title_y": 1.2,
+        "engine_order": ['gpjson-1', 'gpjson-2', 'gpjson-4', 'gpjson-8'],
+        "col": 'dataset',
+        "col_order": ["twitter_small_records_16x.json", "twitter_small_records_32x.json", "twitter_small_records_64x.json", "twitter_small_records_128x.json"],
+        "col_labels": ["16x", "32x", "64x", "128x"],
+        "col_wrap": 4,
+        "labels": ['1 GPU', '2 GPUs', '4 GPUs', '8 GPUs'],
+        "colors": colors
+        }
+
+def batching():
+    frame = pd.DataFrame()
+    for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+        temp = pd.read_csv(dir+"2x-batching/"+filename)
+        temp = temp.loc[temp['engine'] == "gpjson"]
+        temp['machine'] = filename[:-4]
+        for partitionInfo in temp['options'].unique():
+            if (len(partitionInfo.split(" ")) > 1):
+                temp.loc[(temp['options'] == partitionInfo), 'gridSize'] = "adjusted"
+            else:
+                temp.loc[(temp['options'] == partitionInfo), 'gridSize'] = "default"
+            temp.loc[(temp['options'] == partitionInfo), 'engine'] = "gpjson" + "-" + partitionInfo.split(" ")[0].split("=")[1]
+        temp.loc[(temp['query'] == "TT1-noBatching") & (temp['engine'] == "gpjson-1073741824"), 'engine'] = "gpjson-0"
+        temp.loc[temp['engine'] == "gpjson-0", 'query'] = "TT1"
+        temp = temp.loc[temp['query'] == "TT1"]
+        frame = pd.concat([frame, temp])
+    frame['time'] = frame['time'] / 1000
+    frame['stddev'] = 0
+    frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
+    baseSize = 0.807
+    for engine in frame['engine'].unique():
+            for machine in frame['machine'].unique():
+                for gridSize in frame['gridSize'].unique():
+                    multiplier = 2
+                    frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'time'] = baseSize * multiplier / frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'time'].iloc[0]
+    maxVal = frame['time'].max()
+    maxVal = math.ceil(maxVal)
+    return {"name": "batching",
+        "data": frame,
+        "ratio": "gpjson-0", 
+        "bar_label": "edge",
+        "bar_label_padding": 10, 
+        "limit": [0, maxVal],
+        "xlabel": "Partition Size", 
+        "ylabel": "Speed [GB/s]",
+        "ncols": 3,
+        "bbox_to_anchor": 0.10,
+        "bottomPadding": 0.15,
+        "topPadding": 0.9,
+        "aspect": 1,
+        "wspace": 0.25,
+        "hspace": 0.3,
+        "title_y": 1.05,
+        "engine_order": ["gpjson-0", "gpjson-1073741824", "gpjson-536870912", "gpjson-268435456", "gpjson-134217728"],
+        "col": 'machine',
+        "col_order": ["gpu4.8", "gpu3.1", "gpu2.1"],
+        "col_labels": ["GPU4.8", "GPU3.1", "GPU2.1"],
+        "row": "gridSize",
+        "row_order": ["default", "adjusted"],
+        "labels": ["0 (no batching)", "1GB", "512MB", "256MB", "128MB"],
+        "colors": colors
+        }
+
 def doPlot(plot):
     data = plot['data']
     g = sns.catplot(data=data, kind='bar', x="engine",
@@ -195,10 +361,10 @@ def doPlot(plot):
                 else:
                     labels.append("")
             ax.bar_label(ax.containers[0], labels=labels, label_type=plot['bar_label'], padding=plot['bar_label_padding'], rotation=90)
-            ax.set_title(plot['col_labels'][ii])
+            ax.set_title(plot['col_labels'][ii], y= (plot['title_y'] if ('title_y' in plot) else 1.15))
 
     plt.tight_layout()
-    plt.subplots_adjust(hspace=0.4, wspace=0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
+    plt.subplots_adjust(hspace=plot['hspace'] if ('hspace' in plot) else 0.4, wspace=plot['wspace'] if ('wspace' in plot) else 0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
 
     plt.savefig(f"{plot['name']}.pdf")
     plt.show()
@@ -209,8 +375,8 @@ def doPlotOneRow(plot):
                     order=plot['engine_order'],
                     y="time", alpha=1, palette=plot['colors'],
                     col=plot['col'], col_order=plot['col_order'],
-                    col_wrap=3,
-                    height=4, aspect=1,
+                    col_wrap=plot['col_wrap'],
+                    height=4, aspect=plot['aspect'] if ('aspect' in plot) else 1,
                     sharey=False, sharex=False, margin_titles=True)
 
     g.set_axis_labels(plot['xlabel'], plot['ylabel'])
@@ -233,10 +399,10 @@ def doPlotOneRow(plot):
             else:
                 labels.append("")
         a.bar_label(a.containers[0], labels=labels, label_type=plot['bar_label'], padding=plot['bar_label_padding'], rotation=90)
-        a.set_title(plot['col_labels'][i], y=1.15)
+        a.set_title(plot['col_labels'][i], y= (plot['title_y'] if ('title_y' in plot) else 1.15))
 
     plt.tight_layout()
-    plt.subplots_adjust(hspace=0.4, wspace=0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
+    plt.subplots_adjust(hspace=0.4, wspace=plot['wspace'] if ('wspace' in plot) else 0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
 
     plt.savefig(f"{plot['name']}.pdf")
     plt.show()
@@ -250,3 +416,14 @@ doPlotOneRow(HPCBatch1())
 doPlotOneRow(sizes())
 
 doPlot(selectivity())
+
+for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+    doPlotOneRow(syncVSAsync(filename))
+
+for filename in ['gpu4.8.csv', 'gpu3.8.csv']:
+    doPlotOneRow(numGPUs(filename))
+
+for filename in ['gpu4.8.csv', 'gpu3.8.csv']:
+    doPlotOneRow(numGPUs_10q(filename))
+
+doPlot(batching())
