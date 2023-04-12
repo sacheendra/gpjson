@@ -166,32 +166,41 @@ def selectivity():
         "colors": colors
         }
 
-def syncVSAsync(filename):
+def syncVSAsync():
     frame = pd.DataFrame()
-    temp = pd.read_csv(dir+"syncAsync/"+filename)
-    temp = temp.loc[temp['engine'] == "gpjson"]
-    for executionPolicy in temp['options'].unique():
-        temp.loc[(temp['options'] == executionPolicy), 'engine'] = "gpjson" + "-" + executionPolicy.split("=")[1]
-    frame = pd.concat([frame, temp])
+    maxVal = list()
+    for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+        temp = pd.read_csv(dir+"syncAsync/"+filename)
+        temp['machine'] = filename[:-4]
+        for executionPolicy in temp['options'].unique():
+            temp.loc[(temp['options'] == executionPolicy), 'engine'] = "gpjson" + "-" + executionPolicy.split("=")[1]
+        frame = pd.concat([frame, temp])
+        max = temp['time'].max() / 1000
+        max = math.ceil(max * 10) / 10
+        maxVal.append(max)
     frame['time'] = frame['time'] / 1000
     frame['stddev'] = frame['stddev'] / 1000
-    maxVal = frame['time'].max()
-    maxVal = math.ceil(maxVal * 10) / 10
+    maxVal[1] += 0.1
+    maxVal[2] += 0.1
     return {"name": "syncVSAsync",
         "data": frame,
         "ratio": "gpjson-async", 
         "bar_label": "edge",
         "bar_label_padding": 10, 
-        "limit": [[0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal]],
+        "limit": [[0, max] for max in maxVal],
         "xlabel": "Execution Policy", 
         "ylabel": "Execution Time [s]",
         "ncols": 3,
-        "bbox_to_anchor": -3,
-        "bottomPadding": 0.22,
-        "topPadding": 0.8,
-        "aspect": 0.5,
+        "bbox_to_anchor": 0.10,
+        "bottomPadding": 0.05,
+        "topPadding": 0.95,
+        "aspect": 0.6,
         "wspace": 0.8,
+        "hspace": 0.3,
+        "title_y": 1.05,
         "engine_order": ['gpjson-async', 'gpjson-sync'],
+        "row": 'machine',
+        "row_order": ['gpu4.8', 'gpu3.1', 'gpu2.1'],
         "col": 'query',
         "col_order": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
         "col_labels": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
@@ -200,34 +209,41 @@ def syncVSAsync(filename):
         "colors": colors
         }
 
-def numGPUs(filename):
+def numGPUs():
     frame = pd.DataFrame()
-    temp = pd.read_csv(dir+"numGPUs/"+filename)
-    temp = temp.loc[temp['engine'] == "gpjson"]
-    for numGPUs in temp['options'].unique():
-        temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
-    frame = pd.concat([frame, temp])
+    maxVal = list()
+    for filename in ['gpu4.8.csv', 'gpu3.8.csv']:
+        temp = pd.read_csv(dir+"numGPUs/"+filename)
+        temp['machine'] = filename[:-4]
+        for numGPUs in temp['options'].unique():
+            temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
+        frame = pd.concat([frame, temp])
+        max = temp['time'].max() / 1000
+        max = math.ceil(max * 10) / 10
+        maxVal.append(max)
     frame['time'] = frame['time'] / 1000
     frame['stddev'] = frame['stddev'] / 1000
     frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
-    maxVal = frame['time'].max()
-    maxVal = math.ceil(maxVal * 10) / 10
-    return {"name": "numGPUs"+filename[:-4].upper(),
+    maxVal[0] += 3
+    maxVal[1] += 3
+    return {"name": "numGPUs",
         "data": frame,
         "ratio": "gpjson-1", 
         "bar_label": "edge",
         "bar_label_padding": 8, 
-        "limit": [[0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal]],
+        "limit": [[0, max] for max in maxVal],
         "xlabel": "GPU Count", 
         "ylabel": "Execution Time [s]",
         "ncols": 4,
         "bbox_to_anchor": -0.5,
-        "bottomPadding": 0.22,
-        "topPadding": 0.78,
+        "bottomPadding": 0.15,
+        "topPadding": 0.90,
         "aspect": 0.6,
         "wspace": 0.25,
-        "title_y": 1.2,
+        "title_y": 1.05,
         "engine_order": ['gpjson-1', 'gpjson-2', 'gpjson-4', 'gpjson-8'],
+        "row": 'machine',
+        "row_order": ['gpu4.8', 'gpu3.8'],
         "col": 'dataset',
         "col_order": ["twitter_small_records_8x.json", "twitter_small_records_12x.json", "twitter_small_records_16x.json", "twitter_small_records_32x.json", "twitter_small_records_64x.json"],
         "col_labels": ["8x", "12x", "16x", "32x", "64x"],
@@ -236,40 +252,50 @@ def numGPUs(filename):
         "colors": colors
         }
 
-def numGPUs_10q(filename):
+def numGPUs_10q():
     frame = pd.DataFrame()
-    temp = pd.read_csv(dir+"10q-numGPUs/"+filename)
-    temp = temp.loc[temp['engine'] == "gpjson"]
-    for numGPUs in temp['options'].unique():
-        temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
-        frame = pd.concat([frame, temp])
+    maxVal = list()
+    for filename in ['gpu4.8.csv', 'gpu3.8.csv']:
+        temp = pd.read_csv(dir+"10q-numGPUs/"+filename)
+        temp['machine'] = filename[:-4]
+        for numGPUs in temp['options'].unique():
+            temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
+            frame = pd.concat([frame, temp])
     frame['time'] = frame['time'] / 1000
     frame['stddev'] = 0
     frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
     baseSize = 0.807
-    for engine in frame['engine'].unique():
+    for machine in frame['machine'].unique():
+        for engine in frame['engine'].unique():
             for dataset in frame['dataset'].unique():
                 multiplier = 1 if (dataset == 'twitter_small_records.json') else float(dataset.split("_")[3].split("x")[0])
-                frame.loc[(frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'] = 10 / frame.loc[(frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0] / baseSize * multiplier
-    maxVal = frame['time'].max()
-    maxVal = math.ceil(maxVal * 10) / 10
+                frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'] = 10 / frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0] / baseSize * multiplier
+    for machine in frame['machine'].unique():
+        max = frame.loc[(frame['machine'] == machine), 'time'].max()
+        max = math.ceil(max * 10) / 10
+        maxVal.append(max)
+    maxVal[0] += 10
+    maxVal[1] += 10
     return {"name": "10q-numGPUs",
         "data": frame,
         "ratio": "gpjson-8", 
         "bar_label": "edge",
         "bar_label_padding": 8, 
-        "limit": [[0, maxVal], [0, maxVal], [0, maxVal], [0, maxVal]],
+        "limit": [[0, max] for max in maxVal],
         "xlabel": "GPU Count", 
         "ylabel": "Speed [query / (s * GB)]",
         "ncols": 4,
         "bbox_to_anchor": 0.1,
-        "bottomPadding": 0.22,
-        "topPadding": 0.78,
+        "bottomPadding": 0.13,
+        "topPadding": 0.91,
         "aspect": 0.6,
         "wspace": 0.25,
-        "title_y": 1.2,
+        "hspace": 0.3,
+        "title_y": 1.10,
         "engine_order": ['gpjson-1', 'gpjson-2', 'gpjson-4', 'gpjson-8'],
         "col": 'dataset',
+        "row": 'machine',
+        "row_order": ['gpu4.8', 'gpu3.8'],
         "col_order": ["twitter_small_records_16x.json", "twitter_small_records_32x.json", "twitter_small_records_64x.json", "twitter_small_records_128x.json"],
         "col_labels": ["16x", "32x", "64x", "128x"],
         "col_wrap": 4,
@@ -337,7 +363,7 @@ def doPlot(plot):
                     y="time", alpha=1, palette=plot['colors'],
                     col=plot['col'], col_order=plot['col_order'],
                     row=plot['row'], row_order=plot['row_order'],
-                    height=4, aspect=1,
+                    height=4, aspect=plot['aspect'],
                     sharey=False, sharex=False, margin_titles=True)
 
     g.set_axis_labels(plot['xlabel'], plot['ylabel'])
@@ -349,7 +375,7 @@ def doPlot(plot):
     for i,axes in enumerate(g.axes):  
         for ii,ax in enumerate(axes):
             if 'limit' in plot:
-                ax.set(ylim=plot['limit'])
+                ax.set(ylim=plot['limit'][i])
             ax.set(xticklabels=[])
             tempdata = data.loc[(data[plot['row']] == plot["row_order"][i]) & (data[plot['col']] == plot['col_order'][ii]) & (data['engine'].isin(plot['engine_order']))]
             ax.errorbar(data=tempdata, x="engine", y="time", yerr="stddev", fmt="none", c="k")
@@ -408,22 +434,19 @@ def doPlotOneRow(plot):
     plt.show()
     
 
-for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    doPlotOneRow(GPUsBatch1(filename))
+# for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+#     doPlotOneRow(GPUsBatch1(filename))
 
-doPlotOneRow(HPCBatch1())
+# doPlotOneRow(HPCBatch1())
 
-doPlotOneRow(sizes())
+# doPlotOneRow(sizes())
 
-doPlot(selectivity())
+# doPlot(selectivity())
 
-for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-    doPlotOneRow(syncVSAsync(filename))
+# doPlot(syncVSAsync())
 
-for filename in ['gpu4.8.csv', 'gpu3.8.csv']:
-    doPlotOneRow(numGPUs(filename))
+# doPlot(numGPUs())
 
-for filename in ['gpu4.8.csv', 'gpu3.8.csv']:
-    doPlotOneRow(numGPUs_10q(filename))
+doPlot(numGPUs_10q())
 
-doPlot(batching())
+# doPlot(batching())
