@@ -110,7 +110,9 @@ def sizes():
         "ncols": 4,
         "bbox_to_anchor": 0.45,
         "bottomPadding": 0.10,
-        "topPadding": 0.92,
+        "topPadding": 0.95,
+        "title_y": 1.05,
+        "hspace": 0.3,
         "row": 'machine',
         "row_order": ['OPTIMIZED3-12c'],
         "engine_order": ['gpjson-GPU4.8', 'gpjson-GPU3.1', 'gpjson-GPU2.1', 'javajsonpath', 'pison', 'rapidjson', 'simdjson'],
@@ -150,11 +152,13 @@ def selectivity():
         "bar_label_padding": 10,
         "xlabel": "Engine", 
         "ylabel": "Execution Time [s]",
-        "limit": [0, 7],
+        "limit": [[0, 7] for _ in range(3)],
         "ncols": 6,
         "bbox_to_anchor": 0,
         "bottomPadding": 0.12,
         "topPadding": 0.95,
+        "aspect": 1,
+        "title_y": 1.05,
         "row": 'edit',
         "row_order": ['changeUserLang', 'deleteUser', 'deleteUserLang'],
         "row_labels": ['Change $.user.lang', 'Delete $.user key', 'Delete $.user.lang key'],
@@ -191,8 +195,8 @@ def syncVSAsync():
         "xlabel": "Execution Policy", 
         "ylabel": "Execution Time [s]",
         "ncols": 3,
-        "bbox_to_anchor": 0.10,
-        "bottomPadding": 0.05,
+        "bbox_to_anchor": -3.0,
+        "bottomPadding": 0.10,
         "topPadding": 0.95,
         "aspect": 0.6,
         "wspace": 0.8,
@@ -307,7 +311,6 @@ def batching():
     frame = pd.DataFrame()
     for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
         temp = pd.read_csv(dir+"2x-batching/"+filename)
-        temp = temp.loc[temp['engine'] == "gpjson"]
         temp['machine'] = filename[:-4]
         for partitionInfo in temp['options'].unique():
             if (len(partitionInfo.split(" ")) > 1):
@@ -335,7 +338,7 @@ def batching():
         "ratio": "gpjson-0", 
         "bar_label": "edge",
         "bar_label_padding": 10, 
-        "limit": [0, maxVal],
+        "limit": [[0, maxVal], [0, maxVal], [0, maxVal]],
         "xlabel": "Partition Size", 
         "ylabel": "Speed [GB/s]",
         "ncols": 3,
@@ -428,7 +431,7 @@ def doPlotOneRow(plot):
         a.set_title(plot['col_labels'][i], y= (plot['title_y'] if ('title_y' in plot) else 1.15))
 
     plt.tight_layout()
-    plt.subplots_adjust(hspace=0.4, wspace=plot['wspace'] if ('wspace' in plot) else 0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
+    plt.subplots_adjust(hspace=plot['hspace'] if ('hspace' in plot) else 0.4, wspace=plot['wspace'] if ('wspace' in plot) else 0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
 
     plt.savefig(f"{plot['name']}.pdf")
     plt.show()
@@ -439,7 +442,7 @@ def doPlotOneRow(plot):
 
 # doPlotOneRow(HPCBatch1())
 
-# doPlotOneRow(sizes())
+doPlotOneRow(sizes())
 
 # doPlot(selectivity())
 
@@ -447,6 +450,6 @@ def doPlotOneRow(plot):
 
 # doPlot(numGPUs())
 
-doPlot(numGPUs_10q())
+# doPlot(numGPUs_10q())
 
 # doPlot(batching())
