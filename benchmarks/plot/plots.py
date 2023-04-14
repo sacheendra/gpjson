@@ -90,7 +90,7 @@ def sizes():
     temp = pd.read_csv(dir+"sizes/optimized3-12c.csv")
     temp['machine'] = "OPTIMIZED3-12c"
     frame = pd.concat([frame, temp])
-    frame['stddev'] = 0
+    frame['stddev'] = frame['stddev'] / 1000
     frame['time'] = frame['time'] / 1000
     frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
     baseSize = 0.807
@@ -98,7 +98,9 @@ def sizes():
         for machine in frame['machine'].unique():
             for dataset in ['twitter_small_records.json', 'twitter_small_records_0.125x.json', 'twitter_small_records_0.25x.json', 'twitter_small_records_0.5x.json', 'twitter_small_records_2x.json', 'twitter_small_records_4x.json', 'twitter_small_records_8x.json', 'twitter_small_records_12x.json', 'twitter_small_records_16x.json']:
                 multiplier = 1 if (dataset == 'twitter_small_records.json') else float(dataset.split("_")[3].split("x")[0])
+                time = frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0]
                 frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'] = baseSize * multiplier / frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0]
+                frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'stddev'] = baseSize * multiplier * frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'stddev'].iloc[0] / (time*time)
     return {"name": "HPCSizes",
         "data": frame,
         "ratio": "gpjson-GPU4.8", 
@@ -106,7 +108,7 @@ def sizes():
         "bar_label_padding": 10,
         "xlabel": "Engine", 
         "ylabel": "Speed [GB/s]",
-        "limit": [[0, 4],[0, 4],[0, 4],[0, 4], [0, 4],[0, 4],[0, 4],[0, 4],[0, 4]],
+        "limit": [[0, 5] for _ in range(9)],
         "ncols": 4,
         "bbox_to_anchor": 0.45,
         "bottomPadding": 0.10,
@@ -266,14 +268,16 @@ def numGPUs_10q():
             temp.loc[(temp['options'] == numGPUs), 'engine'] = "gpjson" + "-" + numGPUs.split("=")[1]
             frame = pd.concat([frame, temp])
     frame['time'] = frame['time'] / 1000
-    frame['stddev'] = 0
+    frame['stddev'] = frame['stddev'] / 1000
     frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
     baseSize = 0.807
     for machine in frame['machine'].unique():
         for engine in frame['engine'].unique():
             for dataset in frame['dataset'].unique():
                 multiplier = 1 if (dataset == 'twitter_small_records.json') else float(dataset.split("_")[3].split("x")[0])
+                time = frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0]
                 frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'] = 10 / frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0] / baseSize * multiplier
+                frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'stddev'] = 10 / baseSize * multiplier * frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'stddev'].iloc[0] / (time*time)
     for machine in frame['machine'].unique():
         max = frame.loc[(frame['machine'] == machine), 'time'].max()
         max = math.ceil(max * 10) / 10
@@ -323,21 +327,23 @@ def batching():
         temp = temp.loc[temp['query'] == "TT1"]
         frame = pd.concat([frame, temp])
     frame['time'] = frame['time'] / 1000
-    frame['stddev'] = 0
+    frame['stddev'] = frame['stddev'] / 1000
     frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
     baseSize = 0.807
     for engine in frame['engine'].unique():
             for machine in frame['machine'].unique():
                 for gridSize in frame['gridSize'].unique():
                     multiplier = 2
+                    time = frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'time'].iloc[0]
                     frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'time'] = baseSize * multiplier / frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'time'].iloc[0]
+                    frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'stddev'] = baseSize * multiplier * frame.loc[(frame['engine'] == engine) & (frame['gridSize'] == gridSize) & (frame['machine'] == machine), 'stddev'].iloc[0] / (time*time)
     maxVal = frame['time'].max()
     maxVal = math.ceil(maxVal)
     return {"name": "batching",
         "data": frame,
         "ratio": "gpjson-0", 
         "bar_label": "edge",
-        "bar_label_padding": 10, 
+        "bar_label_padding": 15, 
         "limit": [[0, maxVal], [0, maxVal], [0, maxVal]],
         "xlabel": "Partition Size", 
         "ylabel": "Speed [GB/s]",
@@ -437,19 +443,19 @@ def doPlotOneRow(plot):
     plt.show()
     
 
-# for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
-#     doPlotOneRow(GPUsBatch1(filename))
+for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+    doPlotOneRow(GPUsBatch1(filename))
 
-# doPlotOneRow(HPCBatch1())
+doPlotOneRow(HPCBatch1())
 
 doPlotOneRow(sizes())
 
-# doPlot(selectivity())
+doPlot(selectivity())
 
-# doPlot(syncVSAsync())
+doPlot(syncVSAsync())
 
-# doPlot(numGPUs())
+doPlot(numGPUs())
 
-# doPlot(numGPUs_10q())
+doPlot(numGPUs_10q())
 
-# doPlot(batching())
+doPlot(batching())
