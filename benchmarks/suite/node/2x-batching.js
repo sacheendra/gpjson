@@ -13,8 +13,8 @@ async function main() {
     engine.init()
 
     for (var dataset of datasets) {
-        await common.execute(engineName, warmup, repeat, baseDir+dataset, "TT1", engine.queryTT1, engine.count);
         await common.execute(engineName, warmup, repeat, baseDir+dataset, "TT1-noBatching", engine.queryTT1_noBatching, engine.count);
+        await common.execute(engineName, warmup, repeat, baseDir+dataset, "TT1", engine.queryTT1, engine.count);
     }
 }
 
