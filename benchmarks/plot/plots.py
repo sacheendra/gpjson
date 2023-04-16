@@ -79,6 +79,41 @@ def HPCBatch1():
         "colors": colors
         }
 
+def HPCBatch1Summary():
+    frame = pd.DataFrame()
+    for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+        temp = pd.read_csv(dir+"batch1/"+filename)
+        temp = temp.loc[temp['engine'] == "gpjson"]
+        temp['machine'] = "OPTIMIZED3-12c"
+        temp['engine'] = "gpjson" + "-" + filename[:-4].upper()
+        frame = pd.concat([frame, temp])
+    temp = pd.read_csv(dir+"batch1/optimized3-12c.csv")
+    temp['machine'] = "OPTIMIZED3-12c"
+    frame = pd.concat([frame, temp])
+    frame['time'] = frame['time'] / 1000
+    frame['stddev'] = frame['stddev'] / 1000
+    return {"name": "HPCBatch1Summary",
+        "data": frame,
+        "ratio": "gpjson-GPU4.8", 
+        "bar_label": "edge",
+        "bar_label_padding": 3, 
+        # "limit": [[0, 8],[0, 10],[0, 10],[0, 10],[0, 10],[0, 20]],   
+        "xlabel": "Engine", 
+        "ylabel": "Execution Time [s]",
+        "ncols": 6,
+        "bbox_to_anchor": 0.78,
+        "bottomPadding": 0.15,
+        "topPadding": 0.9,
+        "aspect": 1.2,
+        "engine_order": ['gpjson-GPU4.8', 'gpjson-GPU3.1', 'gpjson-GPU2.1', 'nodejsonpath', 'nodejsonpathplus', 'nodemanual', 'nodesimdjson', 'javajsonpath', 'pison', 'rapidjson', 'simdjson'],
+        "col": 'query',
+        "col_order": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_labels": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_wrap": 3,
+        "labels": ['GpJSON-GPU4.8', 'GpJSON-GPU3.1', 'GpJSON-GPU2.1', 'Node jsonpath', 'Node jsonpath-plus', 'Node manual', 'Node simdjson', 'Java JSONPath', 'Pison', 'RapidJSON', 'simdjson'],
+        "colors": colors
+        }
+
 def sizes():
     frame = pd.DataFrame()
     for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
@@ -459,3 +494,5 @@ doPlot(numGPUs())
 doPlot(numGPUs_10q())
 
 doPlot(batching())
+
+doPlotOneRow(HPCBatch1Summary())
