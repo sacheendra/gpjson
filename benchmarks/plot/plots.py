@@ -334,7 +334,7 @@ def numGPUs_10q():
         "aspect": 0.6,
         "wspace": 0.25,
         "hspace": 0.3,
-        "title_y": 1.10,
+        "title_y": 1.12,
         "engine_order": ['gpjson-1', 'gpjson-2', 'gpjson-4', 'gpjson-8'],
         "col": 'dataset',
         "row": 'machine',
