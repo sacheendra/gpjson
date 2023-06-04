@@ -161,6 +161,53 @@ def sizes():
         "colors": colors
         }
 
+def sizesPresentation():
+    frame = pd.DataFrame()
+    for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
+        temp = pd.read_csv(dir+"sizes/"+filename)
+        temp = temp.loc[temp['engine'] == "gpjson"]
+        temp['machine'] = "OPTIMIZED3-12c"
+        temp['engine'] = "gpjson" + "-" + filename[:-4].upper()
+        frame = pd.concat([frame, temp])
+    temp = pd.read_csv(dir+"sizes/optimized3-12c.csv")
+    temp['machine'] = "OPTIMIZED3-12c"
+    frame = pd.concat([frame, temp])
+    frame['stddev'] = frame['stddev'] / 1000
+    frame['time'] = frame['time'] / 1000
+    frame['dataset'] = frame['dataset'].apply(lambda x: x.split("/")[-1])
+    baseSize = 0.807
+    for engine in frame['engine'].unique():
+        for machine in frame['machine'].unique():
+            for dataset in ['twitter_small_records.json', 'twitter_small_records_0.125x.json', 'twitter_small_records_0.25x.json', 'twitter_small_records_0.5x.json', 'twitter_small_records_2x.json', 'twitter_small_records_4x.json', 'twitter_small_records_8x.json', 'twitter_small_records_12x.json', 'twitter_small_records_16x.json']:
+                multiplier = 1 if (dataset == 'twitter_small_records.json') else float(dataset.split("_")[3].split("x")[0])
+                time = frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0]
+                frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'] = baseSize * multiplier / frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'time'].iloc[0]
+                frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'stddev'] = baseSize * multiplier * frame.loc[(frame['machine'] == machine) & (frame['engine'] == engine) & (frame['dataset'] == dataset), 'stddev'].iloc[0] / (time*time)
+    return {"name": "HPCSizesPresentation",
+        "data": frame,
+        "ratio": "gpjson-GPU4.8", 
+        "bar_label": "edge",
+        "bar_label_padding": 10,
+        "xlabel": "Engine", 
+        "ylabel": "Speed [GB/s]",
+        "limit": [[0, 4] for _ in range(9)],
+        "ncols": 4,
+        "bbox_to_anchor": 0.45,
+        "bottomPadding": 0.2,
+        "topPadding": 0.90,
+        "title_y": 1.05,
+        "hspace": 0.3,
+        "row": 'machine',
+        "row_order": ['OPTIMIZED3-12c'],
+        "engine_order": ['gpjson-GPU4.8', 'gpjson-GPU3.1', 'gpjson-GPU2.1', 'javajsonpath', 'pison', 'rapidjson', 'simdjson'],
+        "col": 'dataset',
+        "col_order": ["twitter_small_records_0.125x.json", "twitter_small_records_0.25x.json", "twitter_small_records_0.5x.json", "twitter_small_records.json", "twitter_small_records_2x.json", "twitter_small_records_4x.json", "twitter_small_records_8x.json", "twitter_small_records_12x.json", "twitter_small_records_16x.json"],
+        "col_labels": ["0.125x", "0.25x", "0.5x", "1x", "2x", "4x - in memory", "8x", "12x", "16x - out of memory"],
+        "col_wrap": 3,
+        "labels": ['GpJSON-GPU4.8', 'GpJSON-GPU3.1', 'GpJSON-GPU2.1' ,'Java JSONPath', 'Pison', 'RapidJSON', 'simdjson'],
+        "colors": colors
+        }
+
 def selectivity():
     frame = pd.DataFrame()
     for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
@@ -532,6 +579,8 @@ for filename in ['gpu4.8.csv', 'gpu3.1.csv', 'gpu2.1.csv']:
 doPlotOneRow(HPCBatch1())
 
 doPlotOneRow(sizes())
+
+doPlotOneRow(sizesPresentation())
 
 doPlot(selectivity())
 
