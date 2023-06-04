@@ -569,7 +569,7 @@ def doPlotOneRow(plot):
     plt.tight_layout()
     plt.subplots_adjust(hspace=plot['hspace'] if ('hspace' in plot) else 0.4, wspace=plot['wspace'] if ('wspace' in plot) else 0.2, bottom=plot['bottomPadding'], top=plot['topPadding'])
 
-    plt.savefig(f"{plot['name']}.pdf")
+    plt.savefig(f"{plot['name']}.pdf", dpi=1200)
     plt.show()
     
 
