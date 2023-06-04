@@ -400,6 +400,54 @@ def batching():
         "colors": colors
         }
 
+def prototype():
+    frame = pd.DataFrame()
+    maxVal = list()
+    for filename in ['gpu3.1.csv']:
+        temp = pd.read_csv(dir+"syncAsync/"+filename)
+        temp['machine'] = filename[:-4]
+        temp = temp.loc[temp['engine'] == "gpjson"]
+        temp['engine'] = "gpjson"
+        frame = pd.concat([frame, temp])
+        max = temp['time'].max() / 1000
+        max = math.ceil(max * 10) / 10
+        maxVal.append(max)
+    for filename in ['gpu3.1-uptodate.csv']:
+        temp = pd.read_csv("/Users/lucadanelutti/repo/gpjson/benchmarks/result/old/batch1/"+filename)
+        temp['machine'] = filename[:-4]
+        temp = temp.loc[temp['engine'] == "gpjson"]
+        temp['engine'] = "gpjson-prototype"
+        frame = pd.concat([frame, temp])
+        max = temp['time'].max() / 1000
+        max = math.ceil(max * 10) / 10
+        maxVal.append(max)
+    frame['time'] = frame['time'] / 1000
+    frame['stddev'] = frame['stddev'] / 1000
+    return {"name": "prototype",
+        "data": frame,
+        "ratio": "gpjson", 
+        "bar_label": "edge",
+        "bar_label_padding": 10, 
+        "limit": [[0, max] for _ in range(6)],
+        "xlabel": "Execution Policy", 
+        "ylabel": "Execution Time [s]",
+        "ncols": 3,
+        "bbox_to_anchor": -3.0,
+        "bottomPadding": 0.25,
+        "topPadding": 0.85,
+        "aspect": 0.6,
+        "wspace": 0.8,
+        "hspace": 0.3,
+        "title_y": 1.05,
+        "engine_order": ['gpjson', 'gpjson-prototype'],
+        "col": 'query',
+        "col_order": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_labels": ['TT1', 'TT2', "TT3", "TT4", "WM", "BB"],
+        "col_wrap": 6,
+        "labels": ['GpJSON', 'GpJSON-prototype'],
+        "colors": colors
+        }
+
 def doPlot(plot):
     data = plot['data']
     g = sns.catplot(data=data, kind='bar', x="engine",
@@ -496,3 +544,5 @@ doPlot(numGPUs_10q())
 doPlot(batching())
 
 doPlotOneRow(HPCBatch1Summary())
+
+doPlotOneRow(prototype())
