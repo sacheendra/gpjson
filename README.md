@@ -7,6 +7,15 @@ The goals are:
  3. Implement the above concepts into a Truffle Language to provide an engine that can be used from any host language that can run on the GraalVM.
  
 ## Using GpJSON in the GraalVM
+1. GpJSON requires GrCUDA to use the GPU. Install the custom GrCUDA version from necst: [https://github.com/necst/grcuda](https://github.com/necst/grcuda).
+2. GrCUDA require GraalVM 21.3. Download from [https://github.com/graalvm/graalvm-ce-builds/releases](https://github.com/graalvm/graalvm-ce-builds/releases).
+3. Checkout to commit `GRCUDA-133-gpjson-2.0` in GrCUDA and install it.
+4. Now switch to GraalVM 22.1. You can use SDKman to change GraalVM versions quickly.
+5. Compile GpJSON with GraalVM 22.1. Use the `mvn package` command.
+6. Copy both GrCUDA and GpJSON jars to the GraalVM22.1 languages folder.
+7. Use GraalVM 22.1 for experiments with GpJSON.
+
+
 To compile a JAR file containing GpJSON move to the language folder and run ```mvn package```.
 
 Next, copy the JAR file from ```target/gpjson.jar``` into `jre/languages/gpjson` (Java 8) or `languages/gpjson` (Java 11) of the Graal installation. 
