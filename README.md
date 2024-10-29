@@ -59,4 +59,15 @@ The following options can be added to the command above:
 
 Datasets can be downloaded [here](https://polimi365-my.sharepoint.com/:f:/g/personal/10604455_polimi_it/ElAPYQNeE1BLtcyR_BbFGS0BcaFPp2NiF1kGM1MtjFjmLA).
 
+## Plotting results
+
+The plotting notebooks use Python and Jupyter Lab. Create a conda environment and install the dependencies.
+```
+conda create -n rapids-24.10 -c rapidsai -c conda-forge -c nvidia  \
+    cudf=24.10 python=3.11 'cuda-version>=12.0,<=12.5'
+pip install -r requirements.txt
+```
+
+The `paper plots.ipynb` notebook generates the plots in the paper. The `rapids_vs_gpjson/rapids plots.ipynb` notebook generates the plots for the RAPIDS vs GpJSON section of the paper.
+
 For further details, such as the versions of the dependencies used or the queries executed by the benchmarks suite, please refer to the official thesis and/or publication.

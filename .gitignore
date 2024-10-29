@@ -17,3 +17,5 @@ component/gpjson-component.jar
 test/package.json
 test/package-lock.json
 test/node_modules
+
+.ipynb_checkpoints/
